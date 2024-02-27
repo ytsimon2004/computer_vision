@@ -27,6 +27,7 @@ from typing import TypedDict, final
 import numpy as np
 
 from src.comvis.utils.util_json import load_from_json
+from src.comvis.utils.util_proc_dict import ProcessParameters, load_process_parameter
 from src.comvis.utils.util_typing import PathLike
 
 logging.basicConfig(
@@ -51,7 +52,7 @@ class Cv2BasicImageProcessor:
         super().__init__(file)
 
         self.pars: ProcessParameters = load_process_parameter(json_file)
-        self.roi: np.ndarray = np.zeros((0, 6), dtype=int)  # [frame, x0, y0, x1, y1, th]
+
 
         # save output mp4 and logger
         self.output_directory = Path(output_directory)
