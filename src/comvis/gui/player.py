@@ -1,13 +1,13 @@
 import argparse
 import logging
 import os
-import sys
 import time
 from typing import ClassVar
 
 import cv2
 import numpy as np
 
+from comvis.gui.keymap import get_keymapping, KeyMapping, find_key_from_value
 from comvis.gui.util import COLOR_RED, COLOR_YELLOW, COLOR_GREEN
 
 logging.basicConfig(
@@ -51,12 +51,11 @@ class Cv2Player:
 
         # video properties
         self.video_capture: cv2.VideoCapture | None = None
-        self.current_image: int | None = None
+        self.current_image: np.ndarray | None = None
         self.video_width: int = 0
         self.video_height: int = 0
         self.video_fps: int = 1
         self.video_total_frames: int = 0
-        self.current_image = None
 
         # control
         self._speed_factor: float = 1  # playing speed factor
@@ -78,6 +77,7 @@ class Cv2Player:
         value = min(32, max(0.25, value))
         self._speed_factor = value
         self._sleep_interval = 1 / self.video_fps / value
+        self.enqueue_message(f'speed x{value}')
 
     @property
     def current_frame(self) -> int:
@@ -89,7 +89,7 @@ class Cv2Player:
         if vc is None:
             raise RuntimeError('')
 
-        return int(vc.get(cv2.CAP_PROP_POS_FRAMES)) - 1
+        return int(vc.get(cv2.CAP_PROP_POS_FRAMES))
 
     @current_frame.setter
     def current_frame(self, value: int):
@@ -99,10 +99,12 @@ class Cv2Player:
         :param value: frame number
         :return:
         """
-        if not (0 <= value < self.video_total_frames):
+        if not (0 <= value <= self.video_total_frames):
             Logger.warning(f'{value} out of range')
+            return
 
         if (vc := self.video_capture) is not None:
+            Logger.debug(f'set frame: {value}')
             vc.set(cv2.CAP_PROP_POS_FRAMES, value - 1)
 
         self.current_image = None
@@ -403,7 +405,7 @@ class Cv2Player:
 
     def get_roi(self, frame: int) -> np.ndarray | None:
         """get roi according to frame"""
-        if not (0 <= frame < self.video_total_frames):
+        if not (0 <= frame <= self.video_total_frames):
             raise ValueError('')
 
         ret = None
@@ -456,108 +458,67 @@ class Cv2Player:
 
     def goto_begin(self):
         self.current_frame = 0
-        print(f'{self.current_frame=}')
 
     def goto_end(self):
-        self.current_frame = self.video_total_frames - 1
+        self.current_frame = self.video_total_frames
 
     def handle_keycode(self, k: int):
-        empty_buffer = len(self.buffer) == 0
         Logger.debug(f'Key: {k}')
 
-        match k:
-            case 27:  # escape:
-                self.buffer = ''
-            case 8:  # backspace
+        mapping = get_keymapping()
+        ret = self._handle_keymapping(mapping, k)
+        if ret is not None:  # printable
+            self.buffer += chr(k)
+
+    def _handle_keymapping(self, mapping: KeyMapping, value: int) -> int | None:
+        """
+        Handling the keyboard mapping
+        :param mapping:
+        :param value:
+        :return: int value if cannot find key in keymapping, otherwise return None
+        """
+        ret = find_key_from_value(mapping, value)
+        if not ret:
+            return value
+
+        match ret:
+            case 'backspace':
                 if len(self.buffer) > 0:
                     self.buffer = self.buffer[:-1]
-            case 32:  # space
+            case 'left':
+                self.current_frame -= 1
+            case 'right':
+                self.current_frame += 1
+                print(f'{self.current_frame=}')
+            case 'left_square_bracket':
+                self.goto_begin()
+            case 'right_square_bracket':
+                self.goto_end()
+            case 'enter':  # handle command in buffer
+                command = self.buffer
+                self.buffer = ''
+                try:
+                    self.handle_command(command)
+                except KeyboardInterrupt:
+                    raise
+                except BaseException as e:
+                    self.enqueue_message(f'command "{command}" {type(e).__name__}: {e}')
+            case 'escape':
+                self.buffer = ''
+            case 'plus':
+                self.speed_factor *= 2
+            case 'minus':
+                self.speed_factor /= 2
+            case 'space':
                 self.is_playing = not self.is_playing
-
-            case 13:
-                pass
-
-        if k == 27:  # escape:
-            self.buffer = ''
-        elif k == 13:  # enter:
-            command = self.buffer
-            self.buffer = ''
-            try:
-                self.handle_command(command)
-            except KeyboardInterrupt:
-                raise
-            except BaseException as e:
-                self.enqueue_message(f'command "{command}" {type(e).__name__}: {e}')
-        elif empty_buffer and k == ord('+'):
-            self.speed_factor *= 2
-        elif empty_buffer and k == ord('-'):
-            self.speed_factor /= 2
-        elif 32 <= k < 127:  # printable
-            self.buffer += chr(k)
-        else:  # os dependent
-            p = sys.platform
-            if p in ('linux', 'linux2'):
-                self._handle_key_linux(k)
-            elif p == 'darwin':
-                self._handle_key_mac(k)
-            elif p == 'win32':
-                self._handle_key_windows(k)
-            else:
-                raise OSError(p)
-
-    def _handle_key_windows(self, k: int):
-        if k == 8:  # backspace
-            if len(self.buffer) > 0:
-                self.buffer = self.buffer[:-1]
-        elif k == 2424832:  # left
-            self.current_frame -= 1
-        elif k == 2555904:  # right
-            self.current_frame += 1
-        elif k == 2490368:  # up
-            self.goto_begin()
-        elif k == 2621440:  # down
-            self.goto_end()
-        else:
-            print(f'unknown key: {k}')
-
-    def _handle_key_linux(self, k: int):
-        if k == 8:  # backspace
-            if len(self.buffer) > 0:
-                self.buffer = self.buffer[:-1]
-        elif k == 81:  # left
-            self.current_frame -= 1
-        elif k == 83:  # right
-            self.current_frame += 1
-        elif k == 82:  # up
-            self.goto_begin()
-        elif k == 84:  # down
-            self.goto_end()
-        else:
-            print(f'unknown key: {k}')
-
-    def _handle_key_mac(self, k: int):
-        print(f'{k=}')
-        if k == 127:  # backspace
-            if len(self.buffer) > 0:
-                self.buffer = self.buffer[:-1]
-        elif k == 2:  # left
-            self.current_frame -= 1
-        elif k == 3:  # right
-            self.current_frame += 1
-        elif k == 0:  # up
-            self.goto_begin()
-        elif k == 1:  # down
-            self.goto_end()
-        else:
-            print(f'unknown key: {k}')
 
     def handle_command(self, command: str):
         Logger.debug(f'command: {command}')
 
         match command:
-            case 'h':
+            case ':h':
                 pass
-            case 'q':
+            case ':q':
                 raise KeyboardInterrupt
 
 

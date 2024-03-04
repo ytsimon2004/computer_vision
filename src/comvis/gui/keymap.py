@@ -1,4 +1,10 @@
+import sys
 from typing import TypedDict
+
+__all__ = [
+    'get_keymapping',
+    'find_key_from_value'
+]
 
 
 class KeyMapping(TypedDict, total=False):
@@ -62,3 +68,27 @@ LINUX_KEYMAPPING: KeyMapping = {
     'up': 82,
     'down': 84
 }
+
+
+def get_keymapping() -> KeyMapping:
+    p = sys.platform
+    if p in ('linux', 'linux2'):
+        return LINUX_KEYMAPPING
+    elif p == 'darwin':
+        return MAC_KEYMAPPING
+    elif p == 'win32':
+        return WIN_KEYMAPPING
+
+
+def find_key_from_value(dy: KeyMapping, value: int) -> str | bool | None:
+    ret = []
+    for k, v in dy.items():
+        if v == value:
+            ret.append(k)
+
+    if len(ret) == 0:
+        return
+    elif len(ret) == 1:
+        return ret[0]
+    else:
+        raise False
