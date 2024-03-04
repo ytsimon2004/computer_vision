@@ -27,7 +27,7 @@ class Cv2Player:
     def cli_parser(cls) -> argparse.ArgumentParser:
 
         ap = argparse.ArgumentParser()
-        ap.add_argument('-F', '--file', metavar='FILE', required=True, help='video file')
+        ap.add_argument('-F', '--file', metavar='FILE', required=True, help='video file', dest='file')
 
         return ap
 
@@ -66,6 +66,9 @@ class Cv2Player:
         self._current_roi_region: list[int] | None = None  # roi when roi making
         self._message_queue: list[tuple[float, str]] = []
         self.buffer = ''  # input buffer
+
+        # children used
+        self._proc_image_command: str = ''
 
     @property
     def speed_factor(self) -> float:
@@ -190,11 +193,10 @@ class Cv2Player:
                 self._is_playing = False
                 return
 
-            self.current_image = image
+            self.current_image = self.proc_image(image,  self._proc_image_command)
 
         # copy image for UI drawing.
         image = self.current_image.copy()
-        frame = self.current_frame
         roi = self.current_roi
 
         # show input buffer content
@@ -222,6 +224,10 @@ class Cv2Player:
         k = cv2.waitKey(1)
         if k > 0:
             self.handle_keycode(k)
+
+    def proc_image(self, img: np.ndarray, command: str) -> np.ndarray:
+        """overwrite by child, image processing"""
+        return img
 
     # ==== #
     # Show #
@@ -463,7 +469,7 @@ class Cv2Player:
         self.current_frame = self.video_total_frames
 
     def handle_keycode(self, k: int):
-        Logger.debug(f'Key: {k}')
+        # Logger.debug(f'Key: {k}')
 
         mapping = get_keymapping()
         ret = self._handle_keymapping(mapping, k)
@@ -489,13 +495,12 @@ class Cv2Player:
                 self.current_frame -= 1
             case 'right':
                 self.current_frame += 1
-                print(f'{self.current_frame=}')
             case 'left_square_bracket':
                 self.goto_begin()
             case 'right_square_bracket':
                 self.goto_end()
             case 'enter':  # handle command in buffer
-                command = self.buffer
+                command = self._proc_image_command = self.buffer
                 self.buffer = ''
                 try:
                     self.handle_command(command)
@@ -512,7 +517,8 @@ class Cv2Player:
             case 'space':
                 self.is_playing = not self.is_playing
 
-    def handle_command(self, command: str):
+    @staticmethod
+    def handle_command(command: str):
         Logger.debug(f'command: {command}')
 
         match command:

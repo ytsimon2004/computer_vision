@@ -3,7 +3,7 @@ from pathlib import Path
 
 import numpy as np
 
-from src.comvis.utils.util_typing import PathLike
+from comvis.utils.util_typing import PathLike
 
 __all__ = [
     'JsonEncodeHandler',
