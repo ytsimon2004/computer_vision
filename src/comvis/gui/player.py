@@ -1,3 +1,4 @@
+import argparse
 import logging
 import os
 import sys
@@ -7,7 +8,7 @@ from typing import ClassVar
 import cv2
 import numpy as np
 
-from src.comvis.gui.util import COLOR_RED, COLOR_YELLOW, COLOR_GREEN
+from comvis.gui.util import COLOR_RED, COLOR_YELLOW, COLOR_GREEN
 
 logging.basicConfig(
     level=logging.DEBUG
@@ -22,7 +23,18 @@ class Cv2Player:
     MOUSE_STATE_FREE = 0  # mouse free moving
     MOUSE_STATE_DRAG = 1  # mouse dragging, making roi.
 
-    def __init__(self, file: str):
+    @classmethod
+    def cli_parser(cls) -> argparse.ArgumentParser:
+
+        ap = argparse.ArgumentParser()
+        ap.add_argument('-F', '--file', metavar='FILE', required=True, help='video file')
+
+        return ap
+
+    def __init__(self, opt: argparse.Namespace):
+
+        file = opt.file
+
         if not os.path.exists(file):
             raise FileNotFoundError(f'{file}')
 
@@ -34,6 +46,8 @@ class Cv2Player:
         self.roi: np.ndarray = np.zeros((0, 5), dtype=int)  # [frame, x0, y0, x1, y1]
         self.show_time: bool = True  # show time bar
         self.show_roi: bool = True  # show roi rectangle
+        self.mouse_stick_to_roi = True  # stick mouse to roi frame on time bar
+        self.mouse_stick_distance = 5  # diameter of region to stick mouse on roi frame on time bar
 
         # video properties
         self.video_capture: cv2.VideoCapture | None = None
@@ -86,7 +100,7 @@ class Cv2Player:
         :return:
         """
         if not (0 <= value < self.video_total_frames):
-            raise ValueError()
+            Logger.warning(f'{value} out of range')
 
         if (vc := self.video_capture) is not None:
             vc.set(cv2.CAP_PROP_POS_FRAMES, value - 1)
@@ -117,7 +131,7 @@ class Cv2Player:
         vc = self._init_video()
 
         cv2.namedWindow(self.window_title, cv2.WINDOW_GUI_NORMAL)
-        cv2.setMouseCallback(self.window_title, onMouse=self.handle_mouse_event)
+        cv2.setMouseCallback(self.window_title, self.handle_mouse_event)
 
         try:
             self._is_playing = not pause_on_start
@@ -176,11 +190,10 @@ class Cv2Player:
 
             self.current_image = image
 
-
         # copy image for UI drawing.
         image = self.current_image.copy()
         frame = self.current_frame
-        roi = self.currenxt_roi
+        roi = self.current_roi
 
         # show input buffer content
         if len(self.buffer):
@@ -233,7 +246,7 @@ class Cv2Player:
 
     def _show_roi(self, image, roi: np.ndarray):
         """drawing roi"""
-        _, x0, y0, x1, y1, _ = roi
+        _, x0, y0, x1, y1 = roi
         cv2.rectangle(image, (x0, y0), (x1, y1), COLOR_YELLOW, 2, cv2.LINE_AA)
 
     def _show_roi_tmp(self, image):
@@ -323,7 +336,7 @@ class Cv2Player:
 
         match event:
             case cv2.EVENT_MOUSEMOVE:  # move or drag
-                if self._current_operation_state == self.MOUSE_STATE_FREE:
+                if self._current_operation_state == self.MOUSE_STATE_DRAG:
                     x0, y0, _, _ = self._current_roi_region
                     self._current_roi_region = [x0, y0, x, y]
                 else:
@@ -391,7 +404,7 @@ class Cv2Player:
     def get_roi(self, frame: int) -> np.ndarray | None:
         """get roi according to frame"""
         if not (0 <= frame < self.video_total_frames):
-            raise ValueError()
+            raise ValueError('')
 
         ret = None
         for mask in self.roi:
@@ -401,8 +414,8 @@ class Cv2Player:
         return ret
 
     def add_roi(self, x0: int,
-                x1: int,
                 y0: int,
+                x1: int,
                 y1: int,
                 t: int | None = None):
         """
@@ -443,12 +456,26 @@ class Cv2Player:
 
     def goto_begin(self):
         self.current_frame = 0
+        print(f'{self.current_frame=}')
 
     def goto_end(self):
-        self.current_frame = len(self.seqs) - 1
+        self.current_frame = self.video_total_frames - 1
 
     def handle_keycode(self, k: int):
         empty_buffer = len(self.buffer) == 0
+        Logger.debug(f'Key: {k}')
+
+        match k:
+            case 27:  # escape:
+                self.buffer = ''
+            case 8:  # backspace
+                if len(self.buffer) > 0:
+                    self.buffer = self.buffer[:-1]
+            case 32:  # space
+                self.is_playing = not self.is_playing
+
+            case 13:
+                pass
 
         if k == 27:  # escape:
             self.buffer = ''
@@ -509,6 +536,7 @@ class Cv2Player:
             print(f'unknown key: {k}')
 
     def _handle_key_mac(self, k: int):
+        print(f'{k=}')
         if k == 127:  # backspace
             if len(self.buffer) > 0:
                 self.buffer = self.buffer[:-1]
@@ -531,3 +559,8 @@ class Cv2Player:
                 pass
             case 'q':
                 raise KeyboardInterrupt
+
+
+if __name__ == '__main__':
+    parser = Cv2Player.cli_parser().parse_args()
+    Cv2Player(parser).start()
