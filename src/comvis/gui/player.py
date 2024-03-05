@@ -107,7 +107,6 @@ class Cv2Player:
             return
 
         if (vc := self.video_capture) is not None:
-            Logger.debug(f'set frame: {value}')
             vc.set(cv2.CAP_PROP_POS_FRAMES, value - 1)
 
         self.current_image = None
@@ -255,6 +254,7 @@ class Cv2Player:
     def _show_roi(self, image, roi: np.ndarray):
         """drawing roi"""
         _, x0, y0, x1, y1 = roi
+        print(f'show>>>{roi}')
         cv2.rectangle(image, (x0, y0), (x1, y1), COLOR_YELLOW, 2, cv2.LINE_AA)
 
     def _show_roi_tmp(self, image):
@@ -394,7 +394,7 @@ class Cv2Player:
         else:
             self._current_mouse_hover_frame = None
 
-    def _frame_to_text(self, frame: int):
+    def _frame_to_text(self, frame: int) -> str:
         """convert frame to time text, which format '{minute:02d}:{second:02d}'"""
         t_sec = frame // self.video_fps
         t_min, t_sec = t_sec // 60, t_sec % 60
@@ -492,9 +492,9 @@ class Cv2Player:
                 if len(self.buffer) > 0:
                     self.buffer = self.buffer[:-1]
             case 'left':
-                self.current_frame -= 1
+                self.current_frame -= 10
             case 'right':
-                self.current_frame += 1
+                self.current_frame += 10
             case 'left_square_bracket':
                 self.goto_begin()
             case 'right_square_bracket':
