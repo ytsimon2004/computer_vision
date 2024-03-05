@@ -2,6 +2,8 @@ import sys
 from typing import TypedDict
 
 __all__ = [
+    'KeyMapping',
+
     'get_keymapping',
     'find_key_from_value'
 ]

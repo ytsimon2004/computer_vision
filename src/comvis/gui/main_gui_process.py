@@ -6,10 +6,8 @@ key:
      -h: command
      stop while dragging mask
      after dragging, give command for processing
-        -> sharpen
         -> denoise
         -> down-sampling
-        -> object tracking? TODO or another child class
 
     -q: rollback
 
@@ -26,8 +24,11 @@ import cv2
 import numpy as np
 
 from comvis.gui.player import Cv2Player
-from comvis.utils.util_proc_dict import ProcessParameters, DEFAULT_PROC_PARS, load_process_parameter, \
+from comvis.utils.util_proc_dict import (
+    ProcessParameters,
+    load_process_parameter,
     create_default_json
+)
 
 logging.basicConfig(
     level=logging.DEBUG
@@ -95,26 +96,45 @@ class Cv2BasicImageProcessor(Cv2Player):
                 self.enqueue_message(':r       :Rollback to original(raw) image')
 
     def proc_image(self, img: np.ndarray, command: str) -> np.ndarray:
+        proc = self._get_proc_part(img)
+
         match command:
             case ':gray':
-                return cv2.cvtColor(img, cv2.COLOR_BGR2GRAY)
+                proc = cv2.cvtColor(proc, cv2.COLOR_BGR2GRAY)
+                proc = cv2.cvtColor(proc, cv2.COLOR_GRAY2BGR)
             case ':blur':
                 pars = self.pars['GaussianBlur']
                 ksize = pars['ksize']
                 sigma = pars['sigma']
-                return cv2.GaussianBlur(img, (ksize, ksize), sigmaX=sigma, sigmaY=sigma)
+                proc = cv2.GaussianBlur(proc, (ksize, ksize), sigmaX=sigma, sigmaY=sigma)
             case ':edge':
                 pars = self.pars['Canny']
-                img = cv2.cvtColor(img, cv2.COLOR_BGR2GRAY)
-                return cv2.Canny(img, pars['lower_threshold'], pars['upper_threshold'])
+                proc = cv2.cvtColor(proc, cv2.COLOR_BGR2GRAY)
+                proc = cv2.Canny(proc, pars['lower_threshold'], pars['upper_threshold'])
+                proc = cv2.cvtColor(proc, cv2.COLOR_GRAY2BGR)
             case ':sharpen':
                 pars = self.pars['Filter2D']
                 kernel = np.array(pars['kernel'])
-                return cv2.filter2D(img, -1, kernel)
+                proc = cv2.filter2D(proc, -1, kernel)
             case ':r':
                 return img
+            case _:
+                return img
 
-        return img
+        if (roi := self.current_roi) is not None:
+            _, x0, y0, x1, y1 = roi
+            img[y0:y1, x0:x1] = proc
+            return img
+
+        return proc
+
+    def _get_proc_part(self, img: np.ndarray):
+        """get the image part need to be processed"""
+        if (roi := self.current_roi) is not None:
+            _, x0, y0, x1, y1 = roi
+            return img[y0:y1, x0:x1]
+        else:
+            return img
 
 
 if __name__ == '__main__':

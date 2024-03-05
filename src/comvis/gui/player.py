@@ -192,7 +192,7 @@ class Cv2Player:
                 self._is_playing = False
                 return
 
-            self.current_image = self.proc_image(image,  self._proc_image_command)
+            self.current_image = self.proc_image(image, self._proc_image_command)
 
         # copy image for UI drawing.
         image = self.current_image.copy()
@@ -254,7 +254,6 @@ class Cv2Player:
     def _show_roi(self, image, roi: np.ndarray):
         """drawing roi"""
         _, x0, y0, x1, y1 = roi
-        print(f'show>>>{roi}')
         cv2.rectangle(image, (x0, y0), (x1, y1), COLOR_YELLOW, 2, cv2.LINE_AA)
 
     def _show_roi_tmp(self, image):
@@ -517,8 +516,7 @@ class Cv2Player:
             case 'space':
                 self.is_playing = not self.is_playing
 
-    @staticmethod
-    def handle_command(command: str):
+    def handle_command(self, command: str):
         Logger.debug(f'command: {command}')
 
         match command:
@@ -526,6 +524,8 @@ class Cv2Player:
                 pass
             case ':q':
                 raise KeyboardInterrupt
+            case ':d':  # delete roi:d
+                self.roi = np.zeros((0, 5), dtype=int)
 
 
 if __name__ == '__main__':
