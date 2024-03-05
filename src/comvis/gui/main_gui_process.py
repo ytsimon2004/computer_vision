@@ -24,6 +24,7 @@ import cv2
 import numpy as np
 
 from comvis.gui.player import Cv2Player
+from comvis.gui.util import COLOR_MAGENTA
 from comvis.utils.util_proc_dict import (
     ProcessParameters,
     load_process_parameter,
@@ -107,6 +108,11 @@ class Cv2BasicImageProcessor(Cv2Player):
                 ksize = pars['ksize']
                 sigma = pars['sigma']
                 proc = cv2.GaussianBlur(proc, (ksize, ksize), sigmaX=sigma, sigmaY=sigma)
+            case ':sharpen':
+                pars = self.pars['Filter2D']
+                kernel = np.array(pars['kernel'])
+                proc = cv2.filter2D(proc, -1, kernel)
+
             case ':sobelX' | ':sobelY' | ':sobelXY':
                 k = command[1:].replace(command[1], command[1].capitalize())
                 # noinspection PyTypedDict
@@ -120,10 +126,16 @@ class Cv2BasicImageProcessor(Cv2Player):
                 proc = cv2.cvtColor(proc, cv2.COLOR_BGR2GRAY)
                 proc = cv2.Canny(proc, pars['lower_threshold'], pars['upper_threshold'])
                 proc = cv2.cvtColor(proc, cv2.COLOR_GRAY2BGR)
-            case ':sharpen':
-                pars = self.pars['Filter2D']
-                kernel = np.array(pars['kernel'])
-                proc = cv2.filter2D(proc, -1, kernel)
+
+            case ':circle':
+                pars = self.pars['HoughCircles']
+                _proc = cv2.cvtColor(proc, cv2.COLOR_BGR2GRAY)
+                _proc = cv2.medianBlur(_proc, 5)
+                circles = cv2.HoughCircles(_proc, minDist=_proc.shape[0] / 40, **pars)
+
+                if circles is not None:
+                    self._draw_detected_circle(proc, circles)
+
             case ':r':
                 return img
             case _:
@@ -143,6 +155,15 @@ class Cv2BasicImageProcessor(Cv2Player):
             return img[y0:y1, x0:x1]
         else:
             return img
+
+    @staticmethod
+    def _draw_detected_circle(src: np.ndarray, circles):
+        circles = np.uint16(np.around(circles))
+        for i in circles[0, :]:
+            center = (i[0], i[1])
+            cv2.circle(src, center, 1, (0, 100, 100), 3)  # center
+            radius = i[2]
+            cv2.circle(src, center, radius, COLOR_MAGENTA, 3)  # circle outline
 
 
 if __name__ == '__main__':
