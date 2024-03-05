@@ -80,8 +80,8 @@ class Cv2BasicImageProcessor(Cv2Player):
                 self.enqueue_message('COLOR_BGR2GRAY')
             case ':blur':
                 self.enqueue_message('GaussianBlur')
-            case ':edge':
-                self.enqueue_message('Canny')
+            case ':sobelX' | ':sobelY' | ':sobelXY':
+                self.enqueue_message('Sobel')
             case ':sharpen':
                 self.enqueue_message('filter2D')
             case ':r':  # rollback to original
@@ -107,7 +107,15 @@ class Cv2BasicImageProcessor(Cv2Player):
                 ksize = pars['ksize']
                 sigma = pars['sigma']
                 proc = cv2.GaussianBlur(proc, (ksize, ksize), sigmaX=sigma, sigmaY=sigma)
-            case ':edge':
+            case ':sobelX' | ':sobelY' | ':sobelXY':
+                k = command[1:].replace(command[1], command[1].capitalize())
+                # noinspection PyTypedDict
+                pars = self.pars[k]
+                proc = cv2.GaussianBlur(proc, (3, 3), 0)
+                proc = cv2.cvtColor(proc, cv2.COLOR_BGR2GRAY)
+                proc = cv2.Sobel(proc, **pars)
+                proc = cv2.cvtColor(proc, cv2.COLOR_GRAY2BGR)
+            case ':canny':
                 pars = self.pars['Canny']
                 proc = cv2.cvtColor(proc, cv2.COLOR_BGR2GRAY)
                 proc = cv2.Canny(proc, pars['lower_threshold'], pars['upper_threshold'])
