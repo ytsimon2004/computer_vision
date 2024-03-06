@@ -5,7 +5,7 @@ from typing import TypedDict
 import cv2
 import numpy as np
 
-from comvis.utils.util_typing import PathLike
+from comvis.utils.util_type import PathLike
 
 __all__ = [
     'ProcessParameters',

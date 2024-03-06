@@ -2,7 +2,7 @@ Computer vision
 ======== 
 by Yu-Ting Wei (ytsimon2004@gmail.com)
 
-- Materials for *Computer Vision Course*
+- Materials for *Computer Vision Course* in KULeuven
 - Check source code in `src/comvis/*`
 - Implementation showcases in `notebook/`
 

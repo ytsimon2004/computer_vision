@@ -25,7 +25,7 @@ import numpy as np
 
 from comvis.gui.player_GUI import CV2Player
 from comvis.gui.util import COLOR_MAGENTA
-from comvis.utils.util_proc_dict import (
+from comvis.utils.proc_parameters import (
     ProcessParameters,
     load_process_parameter,
     create_default_json

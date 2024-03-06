@@ -10,6 +10,7 @@ __all__ = [
 
 
 class KeyMapping(TypedDict, total=False):
+    """For controlling the keyboard in different OS"""
     escape: int
     backspace: int
     space: int
