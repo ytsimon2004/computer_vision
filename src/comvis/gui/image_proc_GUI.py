@@ -23,7 +23,7 @@ from typing import final
 import cv2
 import numpy as np
 
-from comvis.gui.player import Cv2Player
+from comvis.gui.player_GUI import CV2Player
 from comvis.gui.util import COLOR_MAGENTA
 from comvis.utils.util_proc_dict import (
     ProcessParameters,
@@ -39,13 +39,13 @@ Logger = logging.getLogger()
 
 
 @final
-class Cv2BasicImageProcessor(Cv2Player):
-
+class ImageProcPlayer(CV2Player):
+    """Video Player for demonstrate the effect with cv2 image processing function"""
     @classmethod
     def cli_parser(cls) -> argparse.ArgumentParser:
         ap = super().cli_parser()
 
-        ap.add_argument('--json', help='json file for imaging processing func parameter')
+        ap.add_argument('--json', type=Path, help='json file for imaging processing func parameter')
         ap.add_argument('-O', '--output', type=Path, default=None,
                         help='output directory', dest='output')
         return ap
@@ -81,10 +81,12 @@ class Cv2BasicImageProcessor(Cv2Player):
                 self.enqueue_message('COLOR_BGR2GRAY')
             case ':blur':
                 self.enqueue_message('GaussianBlur')
-            case ':sobelX' | ':sobelY' | ':sobelXY':
-                self.enqueue_message('Sobel')
             case ':sharpen':
                 self.enqueue_message('filter2D')
+            case ':sobelX' | ':sobelY' | ':sobelXY':
+                self.enqueue_message('Sobel')
+            case 'canny':
+                self.enqueue_message('Canny')
             case ':r':  # rollback to original
                 self.enqueue_message('rollback')
 
@@ -134,7 +136,7 @@ class Cv2BasicImageProcessor(Cv2Player):
                 circles = cv2.HoughCircles(_proc, minDist=_proc.shape[0] / 40, **pars)
 
                 if circles is not None:
-                    self._draw_detected_circle(proc, circles)
+                    self.draw_detected_circle(proc, circles)
 
             case ':r':
                 return img
@@ -148,7 +150,7 @@ class Cv2BasicImageProcessor(Cv2Player):
 
         return proc
 
-    def _get_proc_part(self, img: np.ndarray):
+    def _get_proc_part(self, img: np.ndarray) -> np.ndarray:
         """get the image part need to be processed"""
         if (roi := self.current_roi) is not None:
             _, x0, y0, x1, y1 = roi
@@ -157,7 +159,13 @@ class Cv2BasicImageProcessor(Cv2Player):
             return img
 
     @staticmethod
-    def _draw_detected_circle(src: np.ndarray, circles):
+    def draw_detected_circle(src: np.ndarray,
+                             circles: np.ndarray):
+        """
+        :param src: source image
+        :param circles: A vector that stores sets of 3 values: xc,yc,r for each detected circle
+        :return:
+        """
         circles = np.uint16(np.around(circles))
         for i in circles[0, :]:
             center = (i[0], i[1])
@@ -167,5 +175,5 @@ class Cv2BasicImageProcessor(Cv2Player):
 
 
 if __name__ == '__main__':
-    parser = Cv2BasicImageProcessor.cli_parser().parse_args()
-    Cv2BasicImageProcessor(parser).start()
+    parser = ImageProcPlayer.cli_parser().parse_args()
+    ImageProcPlayer(parser).start()

@@ -17,7 +17,7 @@ logging.basicConfig(
 Logger = logging.getLogger()
 
 
-class Cv2Player:
+class CV2Player:
     window_title: ClassVar = 'Player'
 
     MOUSE_STATE_FREE = 0  # mouse free moving
@@ -487,9 +487,8 @@ class Cv2Player:
             return value
 
         match ret:
-            case 'backspace':
-                if len(self.buffer) > 0:
-                    self.buffer = self.buffer[:-1]
+            case 'space':
+                self.is_playing = not self.is_playing
             case 'left':
                 self.current_frame -= 10
             case 'right':
@@ -498,6 +497,13 @@ class Cv2Player:
                 self.goto_begin()
             case 'right_square_bracket':
                 self.goto_end()
+            case 'plus':
+                self.speed_factor *= 2
+            case 'minus':
+                self.speed_factor /= 2
+            case 'backspace':
+                if len(self.buffer) > 0:
+                    self.buffer = self.buffer[:-1]
             case 'enter':  # handle command in buffer
                 command = self._proc_image_command = self.buffer
                 self.buffer = ''
@@ -509,12 +515,7 @@ class Cv2Player:
                     self.enqueue_message(f'command "{command}" {type(e).__name__}: {e}')
             case 'escape':
                 self.buffer = ''
-            case 'plus':
-                self.speed_factor *= 2
-            case 'minus':
-                self.speed_factor /= 2
-            case 'space':
-                self.is_playing = not self.is_playing
+
 
     def handle_command(self, command: str):
         Logger.debug(f'command: {command}')
@@ -529,5 +530,5 @@ class Cv2Player:
 
 
 if __name__ == '__main__':
-    parser = Cv2Player.cli_parser().parse_args()
-    Cv2Player(parser).start()
+    parser = CV2Player.cli_parser().parse_args()
+    CV2Player(parser).start()

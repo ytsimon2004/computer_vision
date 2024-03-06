@@ -118,5 +118,14 @@ def create_default_json(output_path: PathLike) -> None:
 
 
 def load_process_parameter(f: PathLike) -> ProcessParameters:
+    if Path(f).suffix != '.json':
+        raise ValueError('should be a json file')
+
     with open(f, "r") as file:
-        return json.load(file)
+        ret = json.load(file)
+
+    default_keys = list(DEFAULT_PROC_PARS.keys())
+    if set(ret.keys()) != set(default_keys):
+        raise KeyError(f'file is not complete, should contain all the key {default_keys}')
+
+    return ret
