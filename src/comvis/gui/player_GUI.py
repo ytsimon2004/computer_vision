@@ -8,7 +8,7 @@ import cv2
 import numpy as np
 
 from comvis.gui.keymap import get_keymapping, KeyMapping, find_key_from_value
-from comvis.gui.util import COLOR_RED, COLOR_YELLOW, COLOR_GREEN
+from comvis.gui.util import COLOR_RED, COLOR_YELLOW, COLOR_GREEN, COLOR_CYAN
 
 logging.basicConfig(
     level=logging.DEBUG
@@ -40,8 +40,6 @@ class CV2Player:
 
         self.video_file = file
 
-        self.message_fade_time = 5  # duration of the message start fading
-
         # display
         self.roi: np.ndarray = np.zeros((0, 5), dtype=int)  # [frame, x0, y0, x1, y1]
         self.show_time: bool = True  # show time bar
@@ -65,6 +63,7 @@ class CV2Player:
         self._current_mouse_hover_frame: int | None = None  # mouse point frame on time bar.
         self._current_roi_region: list[int] | None = None  # roi when roi making
         self._message_queue: list[tuple[float, str]] = []
+        self._message_fade_time = 10  # duration of the message start fading
         self.buffer = ''  # input buffer
 
         # children used
@@ -236,14 +235,14 @@ class CV2Player:
         """drawing enqueued message"""
         t = time.time()
         y = 70
-        s = 25
+        s = 35
         i = 0
         while i < len(self._message_queue):
             r, m = self._message_queue[i]
-            if r + self.message_fade_time < t:  # message has showed enough time, so we delete it.
+            if r + self._message_fade_time < t:  # message has showed enough time, so we delete it.
                 del self._message_queue[i]
             else:
-                cv2.putText(image, m, (10, y), cv2.FONT_HERSHEY_SIMPLEX, 1, COLOR_RED, 2, cv2.LINE_AA)
+                cv2.putText(image, m, (10, y), cv2.FONT_HERSHEY_SIMPLEX, 1, COLOR_CYAN, 2, cv2.LINE_AA)
                 i += 1
                 y += s
 

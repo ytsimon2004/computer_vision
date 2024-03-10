@@ -26,6 +26,7 @@ pip install -r requirements.txt
 
 # GUI usage
 ## CV2Player 
+- ![example_Player.png](figures%2Fexample_player.png)
 - CV2-based video player 
 - See also in [player_GUI.py](./src/comvis/gui/player_GUI.py)
 - ~~~
@@ -39,10 +40,10 @@ pip install -r requirements.txt
 - right square bracket `]` = go to the end frame
 - plus `+` = playing speed x 2
 - minus `-` = playing speed / 2
-- Other keys: type commands
 - backspace: delete a command word
 - escape: clear all the commands
 - enter: run the command
+- Other keys: type commands
 
 ### Mouse Control
 - Left bottom pointing toward the time bar to select the frame of interest
@@ -54,6 +55,7 @@ pip install -r requirements.txt
 -----------------------
 
 ## ImageProcPlayer
+-![example_process.png](figures%2Fexample_process.png)
 - CV2-based video player for seeing image process effect
 - See also in [image_proc_GUI.py](./src/comvis/gui/image_proc_GUI.py)
 - ~~~
