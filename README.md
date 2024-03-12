@@ -26,12 +26,13 @@ pip install -r requirements.txt
 
 # GUI usage
 ## CV2Player 
-- ![example_Player.png](figures%2Fexample_player.png)
+~~~
+python play.py -F <VIDEO FILE>
+~~~
+![example_Player.png](figures%2Fexample_player.png)
 - CV2-based video player 
 - See also in [player_GUI.py](./src/comvis/gui/player_GUI.py)
-- ~~~
-  python play.py -F <VIDEO FILE>
-  ~~~
+
 ### Keyboard Control:
 - space = play/pause
 - left = go back 10 frames
@@ -55,12 +56,12 @@ pip install -r requirements.txt
 -----------------------
 
 ## ImageProcPlayer
--![example_process.png](figures%2Fexample_process.png)
+~~~
+python image_proc_GUI.py -F <VIDEO FILE> --json <PARS> -O <OUTPUT>
+~~~
+![example_process.png](figures%2Fexample_process.png)
 - CV2-based video player for seeing image process effect
 - See also in [image_proc_GUI.py](./src/comvis/gui/image_proc_GUI.py)
-- ~~~
-  python image_proc_GUI.py -F <VIDEO FILE> --json <PARS> -O <OUTPUT>
-  ~~~
 - `--json` specify a json filepath for storage the parameters for all the image processing function,
     default is `None`, then generate a default file under the same directory as video file. See also in `ProcessParameters`
 

@@ -24,12 +24,11 @@ import cv2
 import numpy as np
 
 from comvis.gui.player_GUI import CV2Player
-from comvis.gui.util import COLOR_MAGENTA
-from comvis.utils.proc_parameters import (
-    ProcessParameters,
-    load_process_parameter,
-    create_default_json
+from comvis.utils.util_color import COLOR_MAGENTA
+from comvis.utils.util_proc import (
+    ProcessParameters, as_gray, as_blur, sobel_detect, as_sharpen, canny_detect, draw_circle_detect
 )
+from comvis.gui.io import create_default_json, load_process_parameter
 
 logging.basicConfig(
     level=logging.DEBUG
@@ -41,6 +40,7 @@ Logger = logging.getLogger()
 @final
 class ImageProcPlayer(CV2Player):
     """Video Player for demonstrate the effect with cv2 image processing function"""
+
     @classmethod
     def cli_parser(cls) -> argparse.ArgumentParser:
         ap = super().cli_parser()
@@ -99,7 +99,7 @@ class ImageProcPlayer(CV2Player):
                 self.enqueue_message(':sharpen :Sharpen the image')
                 self.enqueue_message(':sobel   :Sobel Edge detection')
                 self.enqueue_message(':canny   :Canny Edge detection')
-                self.enqueue_message(':circle  :Circular detection' )
+                self.enqueue_message(':circle  :Circular detection')
                 self.enqueue_message(':r       :Rollback to original(raw) image')
 
     def proc_image(self, img: np.ndarray, command: str) -> np.ndarray:
@@ -107,41 +107,18 @@ class ImageProcPlayer(CV2Player):
 
         match command:
             case ':gray':
-                proc = cv2.cvtColor(proc, cv2.COLOR_BGR2GRAY)
-                proc = cv2.cvtColor(proc, cv2.COLOR_GRAY2BGR)
+                proc = as_gray(proc)
             case ':blur':
-                pars = self.pars['GaussianBlur']
-                ksize = pars['ksize']
-                sigma = pars['sigma']
-                proc = cv2.GaussianBlur(proc, (ksize, ksize), sigmaX=sigma, sigmaY=sigma)
+                proc = as_blur(proc, self.pars)
             case ':sharpen':
-                pars = self.pars['Filter2D']
-                kernel = np.array(pars['kernel'])
-                proc = cv2.filter2D(proc, -1, kernel)
-
+                proc = as_sharpen(proc, self.pars)
             case ':sobelX' | ':sobelY' | ':sobelXY':
-                k = command[1:].replace(command[1], command[1].capitalize())
-                # noinspection PyTypedDict
-                pars = self.pars[k]
-                proc = cv2.GaussianBlur(proc, (3, 3), 0)
-                proc = cv2.cvtColor(proc, cv2.COLOR_BGR2GRAY)
-                proc = cv2.Sobel(proc, **pars)
-                proc = cv2.cvtColor(proc, cv2.COLOR_GRAY2BGR)
+                # noinspection PyTypeChecker
+                proc = sobel_detect(img, self.pars, command)
             case ':canny':
-                pars = self.pars['Canny']
-                proc = cv2.cvtColor(proc, cv2.COLOR_BGR2GRAY)
-                proc = cv2.Canny(proc, pars['lower_threshold'], pars['upper_threshold'])
-                proc = cv2.cvtColor(proc, cv2.COLOR_GRAY2BGR)
-
+                proc = canny_detect(img, self.pars)
             case ':circle':
-                pars = self.pars['HoughCircles']
-                _proc = cv2.cvtColor(proc, cv2.COLOR_BGR2GRAY)
-                _proc = cv2.medianBlur(_proc, 5)
-                circles = cv2.HoughCircles(_proc, minDist=_proc.shape[0] / 40, **pars)
-
-                if circles is not None:
-                    self.draw_detected_circle(proc, circles)
-
+                draw_circle_detect(img, self.pars)
             case ':r':
                 return img
             case _:
