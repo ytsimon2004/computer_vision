@@ -26,7 +26,7 @@ import numpy as np
 from comvis.gui.player_GUI import CV2Player
 from comvis.utils.util_color import COLOR_MAGENTA
 from comvis.utils.util_proc import (
-    ProcessParameters, as_gray, as_blur, sobel_detect, as_sharpen, canny_detect, draw_circle_detect
+    ProcessParameters, as_gray, as_blur, sobel_detect, as_sharpen, canny_detect, draw_circle_detect, as_bilateral
 )
 from comvis.gui.io import create_default_json, load_process_parameter
 
@@ -92,15 +92,16 @@ class ImageProcPlayer(CV2Player):
 
             #
             case ':h':
-                self.enqueue_message(':d       :Delete the ROI')
-                self.enqueue_message(':q       :Exit the GUI')
-                self.enqueue_message(':gray    :Image to grayscale')
-                self.enqueue_message(':blur    :Blur the image')
-                self.enqueue_message(':sharpen :Sharpen the image')
-                self.enqueue_message(':sobel   :Sobel Edge detection')
-                self.enqueue_message(':canny   :Canny Edge detection')
-                self.enqueue_message(':circle  :Circular detection')
-                self.enqueue_message(':r       :Rollback to original(raw) image')
+                self.enqueue_message(':d            :Delete the ROI')
+                self.enqueue_message(':q            :Exit the GUI')
+                self.enqueue_message(':gray         :Image to grayscale')
+                self.enqueue_message(':blur         :Gaussian blur the image')
+                self.enqueue_message(':bilateral    :Bilateral filter the image')
+                self.enqueue_message(':sharpen      :Sharpen the image')
+                self.enqueue_message(':sobel        :Sobel Edge detection')
+                self.enqueue_message(':canny        :Canny Edge detection')
+                self.enqueue_message(':circle       :Circular detection')
+                self.enqueue_message(':r            :Rollback to original(raw) image')
 
     def proc_image(self, img: np.ndarray, command: str) -> np.ndarray:
         proc = self._get_proc_part(img)
@@ -110,6 +111,8 @@ class ImageProcPlayer(CV2Player):
                 proc = as_gray(proc)
             case ':blur':
                 proc = as_blur(proc, self.pars)
+            case ':bilateral':
+                proc = as_bilateral(proc, self.pars)
             case ':sharpen':
                 proc = as_sharpen(proc, self.pars)
             case ':sobelX' | ':sobelY' | ':sobelXY':
