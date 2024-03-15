@@ -138,7 +138,7 @@ def sobel_detect(img: ImageType,
                  sobel_command: Literal['sobelX', 'sobelY', 'sobelXY']) -> ImageType:
     # k = sobel_command[1:].replace(sobel_command[1], sobel_command[1].capitalize())
     # noinspection PyTypedDict
-    pars = proc_dict[sobel_command]
+    pars = proc_dict[sobel_command[1:]]
     img = cv2.GaussianBlur(img, (3, 3), 0)
     img = cv2.cvtColor(img, cv2.COLOR_BGR2GRAY)
     img = cv2.Sobel(img, **pars)

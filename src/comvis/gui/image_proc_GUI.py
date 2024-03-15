@@ -26,9 +26,17 @@ import numpy as np
 from comvis.gui.player_GUI import CV2Player
 from comvis.utils.util_color import COLOR_MAGENTA
 from comvis.utils.util_proc import (
-    ProcessParameters, as_gray, as_blur, sobel_detect, as_sharpen, canny_detect, draw_circle_detect, as_bilateral
+    ProcessParameters,
+    as_gray,
+    as_blur,
+    sobel_detect,
+    as_sharpen,
+    canny_detect,
+    draw_circle_detect,
+    as_bilateral
 )
 from comvis.gui.io import create_default_json, load_process_parameter
+from comvis.utils.util_type import PathLike
 
 logging.basicConfig(
     level=logging.DEBUG
@@ -68,10 +76,10 @@ class ImageProcPlayer(CV2Player):
             self.pars = load_process_parameter(json_file)
 
         self._output_file = self.output_directory / f'{opt.file}_proc.mp4'
-        self._output_logger = self.output_directory / f'{opt.file}_proc_logger.txt'
+        self._output_logger = self.output_directory / f'{opt.file}_proc_logger.txt'  # TODO
 
-    def start(self, pause_on_start: bool = True):
-        super().start(pause_on_start)
+    def start(self, pause_on_start: bool = True, output: PathLike | None = None):
+        super().start(pause_on_start, self._output_file)
 
     def handle_command(self, command: str):
         super().handle_command(command)
@@ -105,6 +113,7 @@ class ImageProcPlayer(CV2Player):
 
     def proc_image(self, img: np.ndarray, command: str) -> np.ndarray:
         proc = self._get_proc_part(img)
+        print(f'123123{proc.shape=}')
 
         match command:
             case ':gray':
@@ -129,6 +138,8 @@ class ImageProcPlayer(CV2Player):
 
         if (roi := self.current_roi) is not None:
             _, x0, y0, x1, y1 = roi
+            print(f'{x0=}, {y0=}, {x1=}, {y1=}')
+            print(f'{proc.shape=}')
             img[y0:y1, x0:x1] = proc
             return img
 
