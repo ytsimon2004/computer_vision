@@ -109,6 +109,7 @@ class ImageProcPlayer(CV2Player):
 
     def proc_image(self, img: np.ndarray, command: str) -> np.ndarray:
         proc = self._get_proc_part(img)
+        print(f'123123{proc.shape=}')
 
         match command:
             case ':gray':
@@ -133,6 +134,8 @@ class ImageProcPlayer(CV2Player):
 
         if (roi := self.current_roi) is not None:
             _, x0, y0, x1, y1 = roi
+            print(f'{x0=}, {y0=}, {x1=}, {y1=}')
+            print(f'{proc.shape=}')
             img[y0:y1, x0:x1] = proc
             return img
 
