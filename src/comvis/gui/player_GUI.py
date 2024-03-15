@@ -227,6 +227,7 @@ class CV2Player:
         image = self.proc_image(image, self._proc_image_command)
         cv2.imshow(self.window_title, image)
 
+        # write output mp4
         if output is not None:
             output.write(image)
 

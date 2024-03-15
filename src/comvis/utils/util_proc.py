@@ -37,6 +37,15 @@ class Filter2DPars(TypedDict):
     kernel: np.ndarray
 
 
+class ColorGrabPars(TypedDict):
+    lower_color: np.ndarray
+    """(R,G,B)"""
+    upper_color: np.ndarray
+    """(R,G,B)"""
+    to_color: np.ndarray
+    """masking to which color"""
+
+
 class SobelPars(TypedDict):
     ddepth: int | None
     """The depth of the output image"""
@@ -84,6 +93,7 @@ class ProcessParameters(TypedDict, total=False):
 
     #
     hough_circles: HoughCirclesPars
+    color_grab: ColorGrabPars
 
 
 DEFAULT_PROC_PARS: ProcessParameters = {
@@ -100,7 +110,10 @@ DEFAULT_PROC_PARS: ProcessParameters = {
     'sobelXY': SobelPars(ddepth=None, dx=1, dy=1, ksize=3, scale=1, delta=0),
     'canny': CannyPars(lower_threshold=30, upper_threshold=150),
     'hough_circles': HoughCirclesPars(method=cv2.HOUGH_GRADIENT, dp=1, param1=100, param2=30, minRadius=10,
-                                      maxRadius=30)
+                                      maxRadius=30),
+    'color_grab': ColorGrabPars(lower_color=np.array([35, 0, 0]),
+                                upper_color=np.array([100, 60, 60]),
+                                to_color=np.array([255, 0, 0]))
 }
 
 # ======================= #
@@ -133,10 +146,30 @@ def as_sharpen(img: ImageType, proc_dict: ProcessParameters) -> ImageType:
     return cv2.filter2D(img, -1, kernel)
 
 
+def red_enhancement(img: ImageType, proc_dict: ProcessParameters) -> ImageType:
+    """Grab the red object and do the morphological operations to enhance the mask"""
+    pars = proc_dict['color_grab']
+
+    img = cv2.cvtColor(img, cv2.COLOR_BGR2RGB)
+
+    lc, uc = np.array(pars['lower_color']), np.array(pars['upper_color'])
+    mask = cv2.inRange(img, lc, uc)
+
+    kernel = np.ones((5, 5), np.uint8)
+    closing = cv2.morphologyEx(mask, cv2.MORPH_CLOSE, kernel)  # fill small holes
+    opening = cv2.morphologyEx(closing, cv2.MORPH_OPEN, kernel)  # remove noise
+
+    overlay = np.zeros_like(img)
+    overlay[opening == 255] = pars['to_color']
+
+    ret = cv2.addWeighted(img, 1, overlay, 1, 0)
+
+    return cv2.cvtColor(ret, cv2.COLOR_RGB2BGR)
+
+
 def sobel_detect(img: ImageType,
                  proc_dict: ProcessParameters,
                  sobel_command: Literal['sobelX', 'sobelY', 'sobelXY']) -> ImageType:
-    # k = sobel_command[1:].replace(sobel_command[1], sobel_command[1].capitalize())
     # noinspection PyTypedDict
     pars = proc_dict[sobel_command[1:]]
     img = cv2.GaussianBlur(img, (3, 3), 0)

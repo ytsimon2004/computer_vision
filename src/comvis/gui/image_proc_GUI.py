@@ -33,7 +33,7 @@ from comvis.utils.util_proc import (
     as_sharpen,
     canny_detect,
     draw_circle_detect,
-    as_bilateral
+    as_bilateral, red_enhancement
 )
 from comvis.gui.io import create_default_json, load_process_parameter
 from comvis.utils.util_type import PathLike
@@ -81,6 +81,7 @@ class ImageProcPlayer(CV2Player):
         super().handle_command(command)
 
         match command:
+            # TODO update in more comprehensive
             case ':gray':
                 self.enqueue_message('COLOR_BGR2GRAY')
             case ':blur':
@@ -89,8 +90,12 @@ class ImageProcPlayer(CV2Player):
                 self.enqueue_message('filter2D')
             case ':sobelX' | ':sobelY' | ':sobelXY':
                 self.enqueue_message('Sobel')
-            case 'canny':
+            case ':canny':
                 self.enqueue_message('Canny')
+            case ':red':
+                self.enqueue_message('>> grab red object and enhance')
+            case 'bilateral':
+                self.enqueue_message('>> bilateral filter smoothing')
             case ':r':  # rollback to original
                 self.enqueue_message('rollback')
 
@@ -100,6 +105,7 @@ class ImageProcPlayer(CV2Player):
                 self.enqueue_message(':q            :Exit the GUI')
                 self.enqueue_message(':gray         :Image to grayscale')
                 self.enqueue_message(':blur         :Gaussian blur the image')
+                self.enqueue_message(':red          :Grab the red object and enhance the brightness')
                 self.enqueue_message(':bilateral    :Bilateral filter the image')
                 self.enqueue_message(':sharpen      :Sharpen the image')
                 self.enqueue_message(':sobel        :Sobel Edge detection')
@@ -109,7 +115,6 @@ class ImageProcPlayer(CV2Player):
 
     def proc_image(self, img: np.ndarray, command: str) -> np.ndarray:
         proc = self._get_proc_part(img)
-        print(f'123123{proc.shape=}')
 
         match command:
             case ':gray':
@@ -120,6 +125,8 @@ class ImageProcPlayer(CV2Player):
                 proc = as_bilateral(proc, self.pars)
             case ':sharpen':
                 proc = as_sharpen(proc, self.pars)
+            case ':red':
+                proc = red_enhancement(proc, self.pars)
             case ':sobelX' | ':sobelY' | ':sobelXY':
                 # noinspection PyTypeChecker
                 proc = sobel_detect(proc, self.pars, command)
@@ -134,8 +141,6 @@ class ImageProcPlayer(CV2Player):
 
         if (roi := self.current_roi) is not None:
             _, x0, y0, x1, y1 = roi
-            print(f'{x0=}, {y0=}, {x1=}, {y1=}')
-            print(f'{proc.shape=}')
             img[y0:y1, x0:x1] = proc
             return img
 
