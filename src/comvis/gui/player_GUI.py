@@ -9,6 +9,7 @@ import numpy as np
 
 from comvis.gui.keymap import get_keymapping, KeyMapping, find_key_from_value
 from comvis.utils.util_color import COLOR_RED, COLOR_YELLOW, COLOR_GREEN, COLOR_CYAN
+from comvis.utils.util_type import PathLike
 
 logging.basicConfig(
     level=logging.DEBUG
@@ -129,16 +130,22 @@ class CV2Player:
 
     # ====== #
 
-    def start(self, pause_on_start: bool = True):
+    def start(self, pause_on_start: bool = True,
+              output: PathLike | None = None):
         Logger.debug('start the GUI')
         vc = self._init_video()
 
         cv2.namedWindow(self.window_title, cv2.WINDOW_GUI_NORMAL)
         cv2.setMouseCallback(self.window_title, self.handle_mouse_event)
 
+        if output is not None:
+            Logger.info(f'save output in {str(output)}')
+            fourcc = cv2.VideoWriter_fourcc(*'mp4v')
+            output = cv2.VideoWriter(str(output), fourcc, 30.0, (self.video_width, self.video_height))
+
         try:
             self._is_playing = not pause_on_start
-            self._loop()
+            self._loop(output)
         except KeyboardInterrupt:
             pass
         finally:
@@ -164,12 +171,12 @@ class CV2Player:
 
         return vc
 
-    def _loop(self):
+    def _loop(self, output: cv2.VideoWriter | None = None):
         """frame update look."""
         while True:
             t = time.time()
             try:
-                self._update()
+                self._update(output)
             except KeyboardInterrupt:
                 raise
             except BaseException as e:
@@ -180,18 +187,19 @@ class CV2Player:
             if t > 0:
                 time.sleep(t)
 
-    def _update(self):
+    def _update(self, output: cv2.VideoWriter | None = None):
         """frame update"""
         vc = self.video_capture
 
         # get image
         if self._is_playing or self.current_image is None:
             ret, image = vc.read()
+
             if not ret:
                 self._is_playing = False
                 return
 
-            self.current_image = self.proc_image(image, self._proc_image_command)
+            self.current_image = image
 
         # copy image for UI drawing.
         image = self.current_image.copy()
@@ -216,7 +224,11 @@ class CV2Player:
             self._show_time_bar(image)
 
         # update frame
+        image = self.proc_image(image, self._proc_image_command)
         cv2.imshow(self.window_title, image)
+
+        if output is not None:
+            output.write(image)
 
         # get keyboard input.
         k = cv2.waitKey(1)
@@ -514,7 +526,6 @@ class CV2Player:
                     self.enqueue_message(f'command "{command}" {type(e).__name__}: {e}')
             case 'escape':
                 self.buffer = ''
-
 
     def handle_command(self, command: str):
         Logger.debug(f'command: {command}')
