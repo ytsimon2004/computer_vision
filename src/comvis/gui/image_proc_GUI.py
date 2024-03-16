@@ -25,7 +25,7 @@ import numpy as np
 
 from comvis.gui.io import create_default_json, load_process_parameter
 from comvis.gui.player_GUI import CV2Player
-from comvis.utils.util_color import COLOR_MAGENTA
+from comvis.utils.colors import COLOR_MAGENTA
 from comvis.utils.util_proc import (
     as_gray,
     as_blur,
@@ -36,7 +36,7 @@ from comvis.utils.util_proc import (
     as_bilateral,
     red_enhancement
 )
-from comvis.utils.util_type import PathLike
+from comvis.utils.types import PathLike
 
 logging.basicConfig(
     level=logging.DEBUG

@@ -17,7 +17,7 @@ __all__ = [
     'red_enhancement'
 ]
 
-from comvis.utils.util_color import COLOR_MAGENTA
+from comvis.utils.colors import COLOR_MAGENTA
 
 
 class GaussianBlurPars(TypedDict):

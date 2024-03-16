@@ -4,7 +4,7 @@ from pathlib import Path
 import numpy as np
 
 from comvis.utils.util_proc import DEFAULT_PROC_PARS, ProcessParameters
-from comvis.utils.util_type import PathLike
+from comvis.utils.types import PathLike
 
 
 __all__ = [
