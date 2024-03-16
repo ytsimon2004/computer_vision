@@ -35,8 +35,7 @@ class ObjTrackerPlayer(CV2Player):
 
         return vc
 
-    def _update(self, output: cv2.VideoWriter | None = None):
-        vc = self.video_capture
+    def _capture_current_image(self, vc: cv2.VideoCapture) -> None:
         if self._is_playing or self.current_image is None:
             ret, image = vc.read()
 
@@ -45,7 +44,6 @@ class ObjTrackerPlayer(CV2Player):
                 return
 
             success, box = self.tracker.update(image)
-
             if success:
                 p1 = (int(box[0]), int(box[1]))
                 p2 = (int(box[0] + box[2]), int(box[1] + box[3]))
@@ -55,22 +53,6 @@ class ObjTrackerPlayer(CV2Player):
                             cv2.FONT_HERSHEY_SIMPLEX, 0.75, (0, 0, 255), 2)
 
             self.current_image = image
-
-        image = self.current_image.copy()
-
-        if self.show_time:
-            self._show_time_bar(image)
-
-        cv2.imshow(self.window_title, image)
-
-        # write output mp4
-        if output is not None:
-            output.write(image)
-
-        # get keyboard input.
-        k = cv2.waitKey(1)
-        if k > 0:
-            self.handle_keycode(k)
 
 
 if __name__ == '__main__':

@@ -207,16 +207,7 @@ class CV2Player:
     def _update(self, output: cv2.VideoWriter | None = None):
         """frame update"""
         vc = self.video_capture
-
-        # get image
-        if self._is_playing or self.current_image is None:
-            ret, image = vc.read()
-
-            if not ret:
-                self._is_playing = False
-                return
-
-            self.current_image = image
+        self._capture_current_image(vc)
 
         # copy image for UI drawing.
         image = self.current_image.copy()
@@ -253,6 +244,17 @@ class CV2Player:
         k = cv2.waitKey(1)
         if k > 0:
             self.handle_keycode(k)
+
+    def _capture_current_image(self, vc: cv2.VideoCapture) -> None:
+        """get image"""
+        if self._is_playing or self.current_image is None:
+            ret, image = vc.read()
+
+            if not ret:
+                self._is_playing = False
+                return
+
+            self.current_image = image
 
     def proc_image(self, img: np.ndarray, command: str) -> np.ndarray:
         """overwrite by child, image processing"""
