@@ -52,16 +52,12 @@ class ImageProcPlayer(CV2Player):
     @classmethod
     def cli_parser(cls) -> argparse.ArgumentParser:
         ap = super().cli_parser()
-
         ap.add_argument('--json', type=Path, help='json file for imaging processing func parameter')
-        ap.add_argument('-O', '--output', type=Path, default=None,
-                        help='output directory', dest='output')
+
         return ap
 
     def __init__(self, opt: argparse.Namespace):
         super().__init__(opt)
-
-        self.output_file: Path | None = opt.output
 
         # proc pars
         if opt.json is not None:
@@ -71,8 +67,8 @@ class ImageProcPlayer(CV2Player):
             create_default_json(json_file)
             self.pars = load_process_parameter(json_file)
 
-    def start(self, pause_on_start: bool = True, output: PathLike | None = None):
-        super().start(pause_on_start, self.output_file)
+    def start(self, pause_on_start: bool = True):
+        super().start(pause_on_start)
 
     def handle_command(self, command: str):
         super().handle_command(command)

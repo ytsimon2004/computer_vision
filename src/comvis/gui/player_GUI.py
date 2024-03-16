@@ -2,6 +2,7 @@ import argparse
 import logging
 import os
 import time
+from pathlib import Path
 from typing import ClassVar
 
 import cv2
@@ -29,6 +30,8 @@ class CV2Player:
 
         ap = argparse.ArgumentParser()
         ap.add_argument('-F', '--file', metavar='FILE', required=True, help='video file', dest='file')
+        ap.add_argument('-O', '--output', type=Path, default=None,
+                        help='output directory', dest='output')
 
         return ap
 
@@ -69,6 +72,9 @@ class CV2Player:
 
         # children used
         self._proc_image_command: str = ''
+
+        # io
+        self.output_file: Path | None = opt.output
 
     @property
     def speed_factor(self) -> float:
@@ -130,8 +136,7 @@ class CV2Player:
 
     # ====== #
 
-    def start(self, pause_on_start: bool = True,
-              output: PathLike | None = None):
+    def start(self, pause_on_start: bool = True):
         Logger.debug('start the GUI')
         vc = self._init_video()
 
@@ -139,17 +144,17 @@ class CV2Player:
         cv2.setMouseCallback(self.window_title, self.handle_mouse_event)
 
         #
-        if output is not None:
-            Logger.info(f'save output in {str(output)}')
+        if self.output_file is not None:
+            Logger.info(f'save output in {str(self.output_file)}')
 
-            if output.suffix == '.mp4':
+            if self.output_file.suffix == '.mp4':
                 fourcc = cv2.VideoWriter_fourcc(*'mp4v')
-            elif output.suffix == '.avi':
+            elif self.output_file.suffix == '.avi':
                 fourcc = cv2.VideoWriter_fourcc(*'MJPG')
             else:
-                raise RuntimeError(f'invalid output suffix: {output.suffix}, only support .mp4 and .avi')
+                raise RuntimeError(f'invalid output suffix: {self.output_file.suffix}, only support .mp4 and .avi')
 
-            output = cv2.VideoWriter(str(output), fourcc, 30.0, (self.video_width, self.video_height))
+            output = cv2.VideoWriter(str(self.output_file), fourcc, 30.0, (self.video_width, self.video_height))
 
         #
         try:
