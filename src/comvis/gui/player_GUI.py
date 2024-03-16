@@ -9,8 +9,8 @@ import cv2
 import numpy as np
 
 from comvis.gui.keymap import get_keymapping, KeyMapping, find_key_from_value
-from comvis.utils.util_color import COLOR_RED, COLOR_YELLOW, COLOR_GREEN, COLOR_CYAN
-from comvis.utils.util_type import PathLike
+from comvis.utils.colors import COLOR_RED, COLOR_YELLOW, COLOR_GREEN, COLOR_CYAN
+from comvis.utils.types import PathLike
 
 logging.basicConfig(
     level=logging.DEBUG
@@ -202,10 +202,11 @@ class CV2Player:
 
             t = self._sleep_interval - (time.time() - t)
             if t > 0:
+                print(f'{t=}')
                 time.sleep(t)
 
     def _update(self, output: cv2.VideoWriter | None = None):
-        """frame update"""
+        """frame update TODO add realtime fps info"""
         vc = self.video_capture
         self._capture_current_image(vc)
 
@@ -236,7 +237,7 @@ class CV2Player:
         image = self.proc_image(image, self._proc_image_command)
         cv2.imshow(self.window_title, image)
 
-        # write output mp4
+        # write output
         if output is not None:
             output.write(image)
 
