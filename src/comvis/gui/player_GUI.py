@@ -155,6 +155,8 @@ class CV2Player:
                 raise RuntimeError(f'invalid output suffix: {self.output_file.suffix}, only support .mp4 and .avi')
 
             output = cv2.VideoWriter(str(self.output_file), fourcc, 30.0, (self.video_width, self.video_height))
+        else:
+            output = None
 
         #
         try:

@@ -1,3 +1,0 @@
-"""
-For object tracking
-"""
