@@ -23,19 +23,19 @@ from typing import final
 import cv2
 import numpy as np
 
+from comvis.gui.io import create_default_json, load_process_parameter
 from comvis.gui.player_GUI import CV2Player
 from comvis.utils.util_color import COLOR_MAGENTA
 from comvis.utils.util_proc import (
-    ProcessParameters,
     as_gray,
     as_blur,
     sobel_detect,
     as_sharpen,
     canny_detect,
     draw_circle_detect,
-    as_bilateral, red_enhancement
+    as_bilateral,
+    red_enhancement
 )
-from comvis.gui.io import create_default_json, load_process_parameter
 from comvis.utils.util_type import PathLike
 
 logging.basicConfig(
@@ -61,10 +61,7 @@ class ImageProcPlayer(CV2Player):
     def __init__(self, opt: argparse.Namespace):
         super().__init__(opt)
 
-        # io
         self.output_file: Path | None = opt.output
-        if self.output_file is not None and self.output_file.suffix != '.mp4':
-            raise ValueError(f'invalid output suffix: {self.output_file.suffix}, only support .mp4')
 
         # proc pars
         if opt.json is not None:

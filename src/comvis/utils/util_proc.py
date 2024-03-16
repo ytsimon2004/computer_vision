@@ -13,7 +13,8 @@ __all__ = [
     'as_sharpen',
     'sobel_detect',
     'canny_detect',
-    'draw_circle_detect'
+    'draw_circle_detect',
+    'red_enhancement'
 ]
 
 from comvis.utils.util_color import COLOR_MAGENTA
