@@ -6,6 +6,7 @@ import numpy as np
 
 from comvis.gui.player_GUI import CV2Player
 from comvis.utils.trackers import OPENCV_OBJ_TRACKERS
+from comvis.utils.util_color import COLOR_MAGENTA
 
 
 @final
@@ -15,35 +16,61 @@ class ObjTrackerPlayer(CV2Player):
     @classmethod
     def cli_parser(cls) -> argparse.ArgumentParser:
         ap = super().cli_parser()
-        ap.add_argument('-T', '--tracker', default='kcf', choices=list(OPENCV_OBJ_TRACKERS.keys()),
-                        help='opencv tracker type')
+        ap.add_argument('-T', '--tracker', default='csrt', choices=list(OPENCV_OBJ_TRACKERS.keys()),
+                        help='which opencv tracker type')
 
         return ap
 
     def __init__(self, opt: argparse.Namespace):
         super().__init__(opt)
-        print(f'{opt.tracker=}')
+
         self.tracker = OPENCV_OBJ_TRACKERS[opt.tracker]()
+        self.enable_roi_selection = False  # use cv2 builtin instead
+
+    def _init_video(self) -> cv2.VideoCapture:
+        vc = super()._init_video()
+        ret, image = vc.read()
+        bbox = cv2.selectROI(image, fromCenter=False, showCrosshair=True)
+        self.tracker.init(image, bbox)
+
+        return vc
 
     def _update(self, output: cv2.VideoWriter | None = None):
-        super()._update(output)
+        vc = self.video_capture
+        if self._is_playing or self.current_image is None:
+            ret, image = vc.read()
 
-        if (roi := self.current_roi) is not None:
-            self.tracker.init(self.current_frame, roi[1:])
-            flag, box = self.tracker.update(self.current_frame)
+            if not ret:
+                self._is_playing = False
+                return
 
-            if flag:
-                # Tracking success
+            success, box = self.tracker.update(image)
+
+            if success:
                 p1 = (int(box[0]), int(box[1]))
                 p2 = (int(box[0] + box[2]), int(box[1] + box[3]))
-                cv2.rectangle(self.current_frame, p1, p2, (255, 0, 0), 2, 1)
+                cv2.rectangle(image, p1, p2, COLOR_MAGENTA, 2, 1)
             else:
-                # Tracking failure
-                cv2.putText(self.current_frame, "Tracking failure detected", (100, 80),
+                cv2.putText(image, "Tracking failure detected", (100, 80),
                             cv2.FONT_HERSHEY_SIMPLEX, 0.75, (0, 0, 255), 2)
 
-    def proc_image(self, img: np.ndarray, command: str) -> np.ndarray:
-        return img
+            self.current_image = image
+
+        image = self.current_image.copy()
+
+        if self.show_time:
+            self._show_time_bar(image)
+
+        cv2.imshow(self.window_title, image)
+
+        # write output mp4
+        if output is not None:
+            output.write(image)
+
+        # get keyboard input.
+        k = cv2.waitKey(1)
+        if k > 0:
+            self.handle_keycode(k)
 
 
 if __name__ == '__main__':

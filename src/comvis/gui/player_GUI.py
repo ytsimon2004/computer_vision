@@ -63,6 +63,7 @@ class CV2Player:
         self._speed_factor: float = 1  # playing speed factor
         self._sleep_interval = 1  # playing FPS control
         self._is_playing = False  # play/pause
+        self.enable_roi_selection = True  # enable customized roi selection
         self._current_operation_state = self.MOUSE_STATE_FREE  # mouse state
         self._current_mouse_hover_frame: int | None = None  # mouse point frame on time bar.
         self._current_roi_region: list[int] | None = None  # roi when roi making
@@ -229,11 +230,12 @@ class CV2Player:
         self._show_queued_message(image)
 
         # drawing roi
-        if self._current_roi_region is not None:  # when a roi is creating, draw it first
-            self._show_roi_tmp(image)
-        elif self.show_roi:  # then current roi.
-            if roi is not None:
-                self._show_roi(image, roi)
+        if self.enable_roi_selection:
+            if self._current_roi_region is not None:  # when a roi is creating, draw it first
+                self._show_roi_tmp(image)
+            elif self.show_roi:  # then current roi.
+                if roi is not None:
+                    self._show_roi(image, roi)
 
         # show time bar
         if self.show_time:
