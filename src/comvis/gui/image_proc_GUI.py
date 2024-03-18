@@ -61,14 +61,16 @@ class ImageProcPlayer(CV2Player):
                 self.enqueue_message('>> Image to Gray')
             case ':blur':
                 self.enqueue_message('>> Apply GaussianBlur')
-            case 'bilateral':
+            case ': bilateral':
                 self.enqueue_message('>> Bilateral filter smoothing')
             case ':sharpen':
                 self.enqueue_message('>> Apply filter2D')
             case ':sobelX' | ':sobelY' | ':sobelXY':
-                self.enqueue_message('>> Sobel detection')
+                self.enqueue_message(f'>> {command[1:]} detection')
             case ':canny':
                 self.enqueue_message('>> Canny detection')
+            case ':circle':
+                self.enqueue_message('>> Circle object detection')
             case ':red':
                 self.enqueue_message('>> Grab red object and enhance brightness')
 

@@ -3,6 +3,8 @@ from typing import TypedDict, TypeAlias, Literal
 import cv2
 import numpy as np
 
+from comvis.utils.colors import COLOR_MAGENTA
+
 __all__ = [
     'ProcessParameters',
     'DEFAULT_PROC_PARS',
@@ -16,8 +18,6 @@ __all__ = [
     'draw_circle_detect',
     'red_enhancement'
 ]
-
-from comvis.utils.colors import COLOR_MAGENTA
 
 
 class GaussianBlurPars(TypedDict):
