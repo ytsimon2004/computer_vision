@@ -3,7 +3,7 @@ from pathlib import Path
 
 import numpy as np
 
-from comvis.utils.util_proc import DEFAULT_PROC_PARS, ProcessParameters
+from comvis.utils.process_pars import DEFAULT_PROC_PARS, ProcessParameters
 from comvis.utils.types import PathLike
 
 

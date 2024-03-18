@@ -18,7 +18,7 @@ feature
 import argparse
 import logging
 from pathlib import Path
-from typing import final
+from typing import final, ClassVar
 
 import cv2
 import numpy as np
@@ -26,7 +26,7 @@ import numpy as np
 from comvis.gui.io import create_default_json, load_process_parameter
 from comvis.gui.player_GUI import CV2Player
 from comvis.utils.colors import COLOR_MAGENTA
-from comvis.utils.util_proc import (
+from comvis.utils.process_pars import (
     as_gray,
     as_blur,
     sobel_detect,
@@ -48,6 +48,7 @@ Logger = logging.getLogger()
 @final
 class ImageProcPlayer(CV2Player):
     """Video Player for demonstrate the effect with cv2 image processing function"""
+    window_title: ClassVar[str] = 'Image Process Player'
 
     @classmethod
     def cli_parser(cls) -> argparse.ArgumentParser:
@@ -76,24 +77,26 @@ class ImageProcPlayer(CV2Player):
         match command:
             # TODO update in more comprehensive
             case ':gray':
-                self.enqueue_message('COLOR_BGR2GRAY')
+                self.enqueue_message('>> Image to Gray')
             case ':blur':
-                self.enqueue_message('GaussianBlur')
-            case ':sharpen':
-                self.enqueue_message('filter2D')
-            case ':sobelX' | ':sobelY' | ':sobelXY':
-                self.enqueue_message('Sobel')
-            case ':canny':
-                self.enqueue_message('Canny')
-            case ':red':
-                self.enqueue_message('>> grab red object and enhance')
+                self.enqueue_message('>> Apply GaussianBlur')
             case 'bilateral':
-                self.enqueue_message('>> bilateral filter smoothing')
+                self.enqueue_message('>> Bilateral filter smoothing')
+            case ':sharpen':
+                self.enqueue_message('>> Apply filter2D')
+            case ':sobelX' | ':sobelY' | ':sobelXY':
+                self.enqueue_message('>> Sobel detection')
+            case ':canny':
+                self.enqueue_message('>> Canny detection')
+            case ':red':
+                self.enqueue_message('>> Grab red object and enhance brightness')
+
             case ':r':  # rollback to original
-                self.enqueue_message('rollback')
+                self.enqueue_message('>> rollback')
 
             #
             case ':h':
+                self.enqueue_message('====================================')
                 self.enqueue_message(':d            :Delete the ROI')
                 self.enqueue_message(':q            :Exit the GUI')
                 self.enqueue_message(':gray         :Image to grayscale')
@@ -104,6 +107,7 @@ class ImageProcPlayer(CV2Player):
                 self.enqueue_message(':sobel        :Sobel Edge detection')
                 self.enqueue_message(':canny        :Canny Edge detection')
                 self.enqueue_message(':circle       :Circular detection')
+                self.enqueue_message(':red          :Grab Red and increase brightness')
                 self.enqueue_message(':r            :Rollback to original(raw) image')
 
     def proc_image(self, img: np.ndarray, command: str) -> np.ndarray:

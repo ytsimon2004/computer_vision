@@ -9,7 +9,7 @@ import cv2
 import numpy as np
 
 from comvis.gui.keymap import get_keymapping, KeyMapping, find_key_from_value
-from comvis.utils.colors import COLOR_RED, COLOR_YELLOW, COLOR_GREEN, COLOR_CYAN
+from comvis.utils.colors import COLOR_RED, COLOR_YELLOW, COLOR_GREEN, COLOR_CYAN, COLOR_WHITE, COLOR_BLACK
 from comvis.utils.types import PathLike
 
 logging.basicConfig(
@@ -20,7 +20,7 @@ Logger = logging.getLogger()
 
 
 class CV2Player:
-    window_title: ClassVar = 'Player'
+    window_title: ClassVar[str] = 'Player'
 
     MOUSE_STATE_FREE = 0  # mouse free moving
     MOUSE_STATE_DRAG = 1  # mouse dragging, making roi.
@@ -202,7 +202,6 @@ class CV2Player:
 
             t = self._sleep_interval - (time.time() - t)
             if t > 0:
-                print(f'{t=}')
                 time.sleep(t)
 
     def _update(self, output: cv2.VideoWriter | None = None):
@@ -554,7 +553,10 @@ class CV2Player:
 
         match command:
             case ':h':
-                pass
+                self.enqueue_message('space        :play/pause')
+                self.enqueue_message('left/right   :go backward/forward 10 frames')
+                self.enqueue_message('[/]          :go backward/forward 10 frames')
+                self.enqueue_message('+/-          :adjust speed')
             case ':q':
                 raise KeyboardInterrupt
             case ':d':  # delete roi:d

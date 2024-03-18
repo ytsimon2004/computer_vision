@@ -27,11 +27,12 @@ pip install -r requirements.txt
 # GUI usage
 ## CV2Player 
 ~~~
-python play.py -F <VIDEO FILE>
+python play.py -F <VIDEO FILE> -O <OUTPUT>
 ~~~
-![example_Player.png](figures%2Fexample_player.png)
+![example_gui_view.png](figures%2Fexample_gui_view.png)
 - CV2-based video player 
 - See also in [player_GUI.py](./src/comvis/gui/player_GUI.py)
+- `-F` specify a input video file path, `-O` save as processed video as another .mp4 or .avi 
 
 ### Keyboard Control:
 - space = play/pause
@@ -57,7 +58,7 @@ python play.py -F <VIDEO FILE>
 
 ## ImageProcPlayer
 ~~~
-python image_proc_GUI.py -F <VIDEO FILE> --json <PARS> -O <OUTPUT>
+python image_proc_GUI.py -F <VIDEO FILE> --json <PARS FILE> -O <OUTPUT>
 ~~~
 ![example_process.png](figures%2Fexample_process.png)
 - CV2-based video player for seeing image process effect
@@ -78,31 +79,44 @@ python image_proc_GUI.py -F <VIDEO FILE> --json <PARS> -O <OUTPUT>
 - :q = quit the GUI
 - :gray = switch the image to grayscale
 - :blur = GaussianBlur the image 
+- :bilateral = Bilateral filter the image
 - :sharpen = Sharpen the image by applying filter2D
 - :sobelX | :sobelY | :sobelXY = sobel edge detection
 - :canny = canny edge detection
 - :circle = HoughCircles circular object detection
+- :red = Detect red object and enhance the brightness
+
+--------------
+
+##
+
+
+--------------
 
 ### ProcessParameters
 - Dictionary for storing the parameters for all the cv2 function for image processing 
 - default as:
 ~~~
   DEFAULT_PROC_PARS: ProcessParameters = {
-    'GaussianBlur': GaussianBlurPars(ksize=5, sigma=60),
-    'Canny': CannyPars(lower_threshold=30, upper_threshold=150),
-    'Filter2D': Filter2DPars(
+    'gaussian_blur': GaussianBlurPars(ksize=5, sigma=60),
+    'bilateral': BilateralPars(d=30, sigma_color=75, sigma_space=75),
+    'filter2d': Filter2DPars(
         kernel=np.array([[-1, -1, -1],
                          [-1, 9, -1],
                          [-1, -1, -1]])
     ),
-    #
-    'SobelX': SobelPars(ddepth=None, dx=1, dy=0, ksize=3, scale=1, delta=0),
-    'SobelY': SobelPars(ddepth=None, dx=0, dy=1, ksize=3, scale=1, delta=0),
-    'SobelXY': SobelPars(ddepth=None, dx=1, dy=1, ksize=3, scale=1, delta=0),
-    #
-    'HoughCircles': HoughCirclesPars(method=cv2.HOUGH_GRADIENT, dp=1, param1=100, param2=30, minRadius=10, maxRadius=30)
-
+    # detect
+    'sobelX': SobelPars(ddepth=None, dx=1, dy=0, ksize=3, scale=1, delta=0),
+    'sobelY': SobelPars(ddepth=None, dx=0, dy=1, ksize=3, scale=1, delta=0),
+    'sobelXY': SobelPars(ddepth=None, dx=1, dy=1, ksize=3, scale=1, delta=0),
+    'canny': CannyPars(lower_threshold=30, upper_threshold=150),
+    'hough_circles': HoughCirclesPars(method=cv2.HOUGH_GRADIENT, dp=1, param1=100, param2=30, minRadius=10,
+                                      maxRadius=30),
+    'color_grab': ColorGrabPars(lower_color=np.array([35, 0, 0]),
+                                upper_color=np.array([100, 60, 60]),
+                                to_color=np.array([255, 0, 0]))
 }
+
   ~~~
 
 ----

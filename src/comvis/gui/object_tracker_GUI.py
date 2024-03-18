@@ -1,5 +1,6 @@
 import argparse
-from typing import final
+import logging
+from typing import final, ClassVar
 
 import cv2
 
@@ -7,10 +8,17 @@ from comvis.gui.player_GUI import CV2Player
 from comvis.utils.trackers import OPENCV_OBJ_TRACKERS
 from comvis.utils.colors import COLOR_MAGENTA, COLOR_RED
 
+logging.basicConfig(
+    level=logging.DEBUG
+)
+
+Logger = logging.getLogger()
+
 
 @final
 class ObjTrackerPlayer(CV2Player):
     """Track a selected ROIs"""
+    window_title: ClassVar[str] = 'Object tracking Player'
 
     @classmethod
     def cli_parser(cls) -> argparse.ArgumentParser:
@@ -60,8 +68,10 @@ class ObjTrackerPlayer(CV2Player):
                 p2 = (int(box[0] + box[2]), int(box[1] + box[3]))
                 cv2.rectangle(image, p1, p2, COLOR_MAGENTA, 2, 1)
             else:
-                cv2.putText(image, "Tracking failure detected", (100, 80),
+                msg = "Tracking failure detected"
+                cv2.putText(image, msg, (100, 80),
                             cv2.FONT_HERSHEY_SIMPLEX, 0.75, (0, 0, 255), 2)
+                Logger.warning(msg)
 
             self.current_image = image
 
