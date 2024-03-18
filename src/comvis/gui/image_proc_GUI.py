@@ -36,7 +36,6 @@ from comvis.utils.process_pars import (
     as_bilateral,
     red_enhancement
 )
-from comvis.utils.types import PathLike
 
 logging.basicConfig(
     level=logging.DEBUG
@@ -75,7 +74,6 @@ class ImageProcPlayer(CV2Player):
         super().handle_command(command)
 
         match command:
-            # TODO update in more comprehensive
             case ':gray':
                 self.enqueue_message('>> Image to Gray')
             case ':blur':

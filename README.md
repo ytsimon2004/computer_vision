@@ -4,7 +4,6 @@ by Yu-Ting Wei (ytsimon2004@gmail.com)
 
 - Materials for *Computer Vision Course* in KULeuven
 - Check source code in `src/comvis/*`
-- Implementation showcases in `notebook/`
 
 
 # Installation
@@ -27,12 +26,12 @@ pip install -r requirements.txt
 # GUI usage
 ## CV2Player 
 ~~~
-python play.py -F <VIDEO FILE> -O <OUTPUT>
+python play.py [-F <VIDEO FILE>] [-O <OUTPUT>]
 ~~~
 ![example_gui_view.png](figures%2Fexample_gui_view.png)
 - CV2-based video player 
 - See also in [player_GUI.py](./src/comvis/gui/player_GUI.py)
-- `-F` specify a input video file path, `-O` save as processed video as another .mp4 or .avi 
+- `-F` specify a input video file path, `-O` save as processed video as another .mp4 or .avi (optional) 
 
 ### Keyboard Control:
 - space = play/pause
@@ -58,7 +57,7 @@ python play.py -F <VIDEO FILE> -O <OUTPUT>
 
 ## ImageProcPlayer
 ~~~
-python image_proc_GUI.py -F <VIDEO FILE> --json <PARS FILE> -O <OUTPUT>
+python image_proc_GUI.py [-F <VIDEO FILE>] [--json <PARS FILE>] [-O <OUTPUT>]
 ~~~
 ![example_process.png](figures%2Fexample_process.png)
 - CV2-based video player for seeing image process effect
@@ -88,8 +87,22 @@ python image_proc_GUI.py -F <VIDEO FILE> --json <PARS FILE> -O <OUTPUT>
 
 --------------
 
-##
+## ObjTrackerPlayer
+~~~
+python object_tracker_GUI [-F <VIDEO FILE>]  [-O <OUTPUT>] [-T | --tracker <CV2 TRACKER>]
+~~~
 
+![example_grab_obj.jpg](figures%2Fexample_grab_obj.jpg)![example_obj_detect.gif](figures%2Fexample_obj_detect.gif)
+
+- CV2-based video player to see the object tracking result
+- See also [object_tracker_GUI.py](src%2Fcomvis%2Fgui%2Fobject_tracker_GUI.py)
+- `-T` or `--tracker` specify which tracker. currently support kcf, csrt, mil for cv2
+
+### keyboard Control:
+- inherit all the usage in `CV2Player`
+
+### Mouse Control
+- Left button for selecting a ROI for object tracking
 
 --------------
 
