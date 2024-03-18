@@ -24,12 +24,15 @@ pip install -r requirements.txt
 ```
 
 # GUI usage
-## CV2Player 
+
+## CV2Player
+
 ~~~
 python play.py [-F <VIDEO FILE>] [-O <OUTPUT>]
 ~~~
 ![example_gui_view.png](figures%2Fexample_gui_view.png)
-- CV2-based video player 
+
+- CV2-based video player (use [OpenAI Sora](https://openai.com/sora) as an example video)
 - See also in [player_GUI.py](./src/comvis/gui/player_GUI.py)
 - `-F` specify a input video file path, `-O` save as processed video as another .mp4 or .avi (optional) 
 
