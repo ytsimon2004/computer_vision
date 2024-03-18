@@ -1,20 +1,3 @@
-"""
-Prototype
-===
-key:
-    space: pause
-     -h: command
-     stop while dragging mask
-     after dragging, give command for processing
-        -> denoise
-        -> down-sampling
-
-    -q: rollback
-
-
-feature
-
-"""
 import argparse
 import logging
 from pathlib import Path

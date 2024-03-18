@@ -63,7 +63,8 @@ python image_proc_GUI.py [-F <VIDEO FILE>] [--json <PARS FILE>] [-O <OUTPUT>]
 - CV2-based video player for seeing image process effect
 - See also in [image_proc_GUI.py](./src/comvis/gui/image_proc_GUI.py)
 - `--json` specify a json filepath for storage the parameters for all the image processing function,
-    default is `None`, then generate a default file under the same directory as video file. See also in `ProcessParameters`
+  default is `None`, then generate a default file under the same directory as video file.
+  See also in [process_pars.py](src%2Fcomvis%2Futils%2Fprocess_pars.py)
 
 ### keyboard Control:
 - inherit all the usage in `CV2Player`
@@ -96,7 +97,7 @@ python object_tracker_GUI [-F <VIDEO FILE>]  [-O <OUTPUT>] [-T | --tracker <CV2 
 
 - CV2-based video player to see the object tracking result
 - See also [object_tracker_GUI.py](src%2Fcomvis%2Fgui%2Fobject_tracker_GUI.py)
-- `-T` or `--tracker` specify which tracker. currently support kcf, csrt, mil for cv2
+- `-T` or `--tracker` specify which tracker. currently support kcf, csrt, mil in cv2
 
 ### keyboard Control:
 - inherit all the usage in `CV2Player`

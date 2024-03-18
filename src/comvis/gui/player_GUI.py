@@ -9,8 +9,7 @@ import cv2
 import numpy as np
 
 from comvis.gui.keymap import get_keymapping, KeyMapping, find_key_from_value
-from comvis.utils.colors import COLOR_RED, COLOR_YELLOW, COLOR_GREEN, COLOR_CYAN, COLOR_WHITE, COLOR_BLACK
-from comvis.utils.types import PathLike
+from comvis.utils.colors import COLOR_RED, COLOR_YELLOW, COLOR_GREEN, COLOR_CYAN
 
 logging.basicConfig(
     level=logging.DEBUG
