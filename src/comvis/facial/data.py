@@ -1,4 +1,5 @@
 from pathlib import Path
+from typing import ClassVar
 
 import cv2
 import numpy as np
@@ -13,8 +14,10 @@ __all__ = ['FacialDataSet']
 
 
 class FacialDataSet:
-    TRAIN_SET_FILENAME = 'train_set.csv'
-    TEST_SET_FILENAME = 'test_set.csv'
+    """For loading the dataset"""
+
+    TRAIN_SET_FILENAME: ClassVar = 'train_set.csv'
+    TEST_SET_FILENAME: ClassVar = 'test_set.csv'
 
     def __init__(self, train: DataFrame, test: DataFrame):
         self.train = train
@@ -88,4 +91,3 @@ class FacialDataSet:
         elif isinstance(self.train, pd.DataFrame):
             return (self.train.groupby('name')
                     .agg({'img': 'count', 'class': 'max'}))
-

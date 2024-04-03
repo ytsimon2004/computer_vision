@@ -10,6 +10,8 @@ import polars as pl
 from comvis.facial.util import DEFAULT_CACHE_DIRECTORY
 from comvis.utils.types import PathLike, DataFrame
 
+__all__ = ['HAARPreprocessor']
+
 
 class HAARPreprocessor:
     """Preprocessing pipeline built around HAAR feature based cascade classifiers. """
