@@ -1,9 +1,12 @@
+from typing import final
+
 import numpy as np
 from sklearn.decomposition import PCA
 
 from comvis.facial.extractor.base import IdentityFeatureExtractor
 
 
+@final
 class PCAFeatureExtractor(IdentityFeatureExtractor):
 
     def __init__(self, n_components: int):

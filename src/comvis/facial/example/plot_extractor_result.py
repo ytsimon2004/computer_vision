@@ -3,12 +3,12 @@ import numpy as np
 from comvis.facial.data import FacialDataSet
 from comvis.facial.extractor.hog import HOGFeatureExtractor
 from comvis.facial.extractor.pca import PCAFeatureExtractor
+from comvis.facial.extractor.sift import SIFTFeatureExtractor
 from comvis.facial.haar_preprocessor import HAARPreprocessor
 from comvis.facial.main_feature_repr import FeatureReprOptions
+from comvis.facial.util import plot_image_sequence
 
 __all__ = ['run_hog_extractor']
-
-from comvis.facial.util import plot_image_sequence
 
 
 def run_hog_extractor(plot_hog: bool = False):
@@ -29,6 +29,18 @@ def run_hog_extractor(plot_hog: bool = False):
             r.imshow()
     else:
         hog_extractor.eval_hog_result(opt.train_X, opt.train_y, plot_type='tsne')
+
+
+def run_sift_extractor():
+    dat = FacialDataSet.load()
+    preprocessor = HAARPreprocessor()
+    opt = FeatureReprOptions(dat, preprocessor)
+
+    sift_extractor = SIFTFeatureExtractor()
+
+    ret = sift_extractor(opt.train_X)
+    print(ret)
+
 
 
 def run_pca_extractor(n_components: int = 14):
@@ -52,4 +64,4 @@ def run_pca_extractor(n_components: int = 14):
 
 
 if __name__ == '__main__':
-    run_pca_extractor()
+    run_sift_extractor()
