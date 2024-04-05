@@ -7,7 +7,7 @@ def plot_as_pca(features: list, labels: np.ndarray) -> None:
     from sklearn.decomposition import PCA
 
     pca = PCA(n_components=2)
-    pc_feature = pca.fit_transform(np.array([ret.out for ret in features]))
+    pc_feature = pca.fit_transform(np.array([ret.descriptor for ret in features]))
     plt.figure(figsize=(10, 8))
     scatter = plt.scatter(pc_feature[:, 0], pc_feature[:, 1], c=labels, cmap='viridis', alpha=0.6,
                           edgecolors='w')
@@ -20,7 +20,18 @@ def plot_as_pca(features: list, labels: np.ndarray) -> None:
 
 def plot_as_tsne(features: list, labels: np.ndarray) -> None:
     tsne = TSNE(n_components=2, random_state=42)
-    tsne_results = tsne.fit_transform(np.array([ret.out for ret in features]))
+
+    # desc = []
+    # for ret in features:
+    #     if ret.descriptor is not None:
+    #         _des = ret.descriptor[:30, :]
+    #         desc.append(_des)
+    #         print(_des.shape)
+    #
+    # desc = np.vstack(desc)
+    # # print(desc.shape)
+
+    tsne_results = tsne.fit_transform(np.array([ret.descriptor for ret in features]))
     plt.figure(figsize=(10, 8))
     scatter = plt.scatter(tsne_results[:, 0], tsne_results[:, 1], c=labels, cmap='viridis', alpha=0.6, edgecolors='w')
     plt.title("t-SNE Visualization of HOG Features")

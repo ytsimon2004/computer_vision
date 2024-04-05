@@ -1,9 +1,9 @@
 import numpy as np
 
 from comvis.facial.data import FacialDataSet
-from comvis.facial.extractor.hog import HOGFeatureExtractor
+from comvis.facial.extractor.hog import HOGFeatureExtractor, plot_hog_extracted_result
 from comvis.facial.extractor.pca import PCAFeatureExtractor
-from comvis.facial.extractor.sift import SIFTFeatureExtractor
+from comvis.facial.extractor.sift import SIFTFeatureExtractor, plot_sift_extracted_result
 from comvis.facial.haar_preprocessor import HAARPreprocessor
 from comvis.facial.main_feature_repr import FeatureReprOptions
 from comvis.facial.util import plot_image_sequence
@@ -11,10 +11,11 @@ from comvis.facial.util import plot_image_sequence
 __all__ = ['run_hog_extractor']
 
 
-def run_hog_extractor(plot_hog: bool = False):
+def run_hog_extractor(plot_individual: bool = False,
+                      plot_extracted_cls: bool = False):
     """
-    :param plot_hog: If True, plot the hog image.
-                     If False, evaluate the extract result using tSNE
+    :param plot_individual
+    :param plot_extracted_cls
     :return:
     """
     dat = FacialDataSet.load()
@@ -23,12 +24,16 @@ def run_hog_extractor(plot_hog: bool = False):
 
     hog_extractor = HOGFeatureExtractor()
 
-    if plot_hog:
+    if plot_extracted_cls:
+        hog_extractor.eval_hog_result(opt.train_X, opt.train_y, plot_type='tsne')
+
+    if plot_individual:
         ret = hog_extractor(opt.train_X)
         for r in ret:
             r.imshow()
     else:
-        hog_extractor.eval_hog_result(opt.train_X, opt.train_y, plot_type='tsne')
+        ret = hog_extractor(opt.train_X)
+        plot_hog_extracted_result(ret)
 
 
 def run_sift_extractor():
@@ -39,7 +44,7 @@ def run_sift_extractor():
     sift_extractor = SIFTFeatureExtractor()
 
     ret = sift_extractor(opt.train_X)
-    print(ret)
+    plot_sift_extracted_result(ret)
 
 
 

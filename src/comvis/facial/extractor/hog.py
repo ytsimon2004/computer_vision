@@ -1,5 +1,4 @@
-import dataclasses
-from typing import Literal, final
+from typing import Literal, final, NamedTuple
 
 import numpy as np
 from matplotlib import pyplot as plt
@@ -9,24 +8,26 @@ from skimage.feature import hog
 
 from comvis.facial.extractor.base import IdentityFeatureExtractor
 from comvis.facial.extractor.plot import plot_as_tsne, plot_as_pca
+from comvis.facial.util import plot_image_sequence
 
 __all__ = ['HogExtractorResult',
-           'HOGFeatureExtractor']
+           'HOGFeatureExtractor',
+           'plot_hog_extracted_result']
 
 HOG_BLOCK_NORM_METHOD = Literal['L1’', 'L1-sqrt', 'L2', 'L2-Hys']
 
 
-@dataclasses.dataclass
-class HogExtractorResult:
+class HogExtractorResult(NamedTuple):
     """Container for storing the hog results"""
     image: np.ndarray
     """input image"""
-    out: np.ndarray
+    descriptor: np.ndarray
     """HOG descriptor for the image"""
     hog_image: np.ndarray
     """A visualisation of the HOG image"""
 
     def imshow(self) -> None:
+        """see pair by pair"""
         fig, (ax1, ax2) = plt.subplots(1, 2, figsize=(8, 4), sharex=True, sharey=True)
 
         ax1.axis('off')
@@ -112,3 +113,15 @@ class HOGFeatureExtractor(IdentityFeatureExtractor):
                 plot_as_tsne(features, labels)
             case 'pca':
                 plot_as_pca(features, labels)
+
+
+# ================== #
+
+def plot_hog_extracted_result(results: list[HogExtractorResult]):
+    hogs = []
+    for it in results:
+        hog_image_rescaled = exposure.rescale_intensity(it.hog_image, in_range=(0, 10))
+        hogs.append(hog_image_rescaled)
+
+    imgs = np.array(hogs)
+    plot_image_sequence(imgs, imgs_per_row=7)

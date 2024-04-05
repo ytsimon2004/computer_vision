@@ -13,25 +13,29 @@ DEFAULT_CACHE_DIRECTORY = Path.home() / '.cache' / 'comvis' / 'facial'
 
 
 def plot_image_sequence(data: np.ndarray,
-                        n: int,
                         imgs_per_row: int = 7,
                         **kwargs):
     """
+    Plots a sequence of images in a grid
 
-    :param data:
-    :param n:
-    :param imgs_per_row:
+    :param data: Array of images to plot. (N, (*img))
+    :param imgs_per_row: Number of images per row in the grid
     :return:
     """
-    n_rows = 1 + int(n / (imgs_per_row + 1))
+    n = data.shape[0]
+
+    n_rows = np.ceil(n / imgs_per_row).astype(int)
     n_cols = min(imgs_per_row, n)
 
-    f, ax = plt.subplots(n_rows, n_cols)
-    for i in range(n):
-        if n == 1:
-            ax.imshow(data[i], **kwargs)
-        elif n_rows > 1:
-            ax[int(i / imgs_per_row), int(i % imgs_per_row)].imshow(data[i], **kwargs)
-        else:
-            ax[int(i % n)].imshow(data[i], **kwargs)
+    _, ax = plt.subplots(n_rows, n_cols, figsize=(1.5 * n_cols, 1.5 * n_rows), squeeze=False)
+
+    for i in range(n_rows * n_cols):
+        r, c = divmod(i, imgs_per_row)
+        ax[r, c].axis('off')  # Hide axes
+
+        if i < n:  # check to avoid index error
+            ax[r, c].imshow(data[i], **kwargs)
+        else:  # blank out remaining subplots if any
+            ax[r, c].set_visible(False)
+
     plt.show()
