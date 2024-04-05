@@ -16,23 +16,28 @@ class FeatureReprOptions:
         self.preproc: Final[HAARPreprocessor] = preprocessor
 
     @property
-    def train_X(self) -> np.ndarray:
+    def X_train(self) -> np.ndarray:
         return self.preproc(self.dat.train)
 
     @property
-    def train_y(self) -> np.ndarray:
+    def y_train(self) -> np.ndarray:
         return np.array(self.dat.train['class'])
 
     @property
-    def test_X(self) -> np.ndarray:
+    def X_test(self) -> np.ndarray:
         return self.preproc(self.dat.test)
+
+    @property
+    def y_test(self):
+        """TODO no test data label"""
+        return
 
     @property
     def image_height(self) -> int:
         """assume image dataset has same dim"""
-        return self.train_X[0].shape[0]
+        return self.X_train[0].shape[0]
 
     @property
     def image_width(self) -> int:
         """assume image dataset has same dim"""
-        return self.train_X[0].shape[1]
+        return self.X_train[0].shape[1]

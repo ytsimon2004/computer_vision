@@ -10,7 +10,7 @@ def run_haar_preproc():
 
     opt = FeatureReprOptions(dat, preprocessor)
 
-    plot_image_sequence(opt.train_X[opt.train_y == 2], n=20, imgs_per_row=10)
+    plot_image_sequence(opt.X_train[opt.y_train == 2], n=20, imgs_per_row=10)
 
 
 if __name__ == '__main__':

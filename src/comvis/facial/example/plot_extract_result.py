@@ -25,14 +25,14 @@ def run_hog_extractor(plot_individual: bool = False,
     hog_extractor = HOGFeatureExtractor()
 
     if plot_extracted_cls:
-        hog_extractor.eval_hog_result(opt.train_X, opt.train_y, plot_type='tsne')
+        hog_extractor.eval_hog_result(opt.X_train, opt.y_train, plot_type='tsne')
 
     if plot_individual:
-        ret = hog_extractor(opt.train_X)
+        ret = hog_extractor(opt.X_train)
         for r in ret:
             r.imshow()
     else:
-        ret = hog_extractor(opt.train_X)
+        ret = hog_extractor(opt.X_train)
         plot_hog_extracted_result(ret)
 
 
@@ -43,7 +43,7 @@ def run_sift_extractor():
 
     sift_extractor = SIFTFeatureExtractor()
 
-    ret = sift_extractor(opt.train_X)
+    ret = sift_extractor(opt.X_train)
     plot_sift_extracted_result(ret)
 
 
@@ -55,8 +55,8 @@ def run_pca_extractor(n_components: int = 14):
 
     pca_extractor = PCAFeatureExtractor(n_components)
 
-    dat = np.delete(opt.train_X, [14, 24, 28, 35, 65], axis=0)
-    y = np.delete(opt.train_y, [14, 24, 28, 35, 65], axis=0)
+    dat = np.delete(opt.X_train, [14, 24, 28, 35, 65], axis=0)
+    y = np.delete(opt.y_train, [14, 24, 28, 35, 65], axis=0)
 
     pca_extractor.fit(dat[y == 2])
 

@@ -1,12 +1,14 @@
-from typing import Literal, final, NamedTuple
+import dataclasses
+from typing import Literal, final
 
 import numpy as np
 from matplotlib import pyplot as plt
 from skimage.color import rgb2gray
 from skimage.exposure import exposure
 from skimage.feature import hog
+from typing_extensions import Self
 
-from comvis.facial.extractor.base import IdentityFeatureExtractor
+from comvis.facial.extractor.base import IdentityFeatureExtractor, ExtractedResultLike
 from comvis.facial.extractor.plot import plot_as_tsne, plot_as_pca
 from comvis.facial.util import plot_image_sequence
 
@@ -17,7 +19,8 @@ __all__ = ['HogExtractorResult',
 HOG_BLOCK_NORM_METHOD = Literal['L1’', 'L1-sqrt', 'L2', 'L2-Hys']
 
 
-class HogExtractorResult(NamedTuple):
+@dataclasses.dataclass
+class HogExtractorResult(ExtractedResultLike):
     """Container for storing the hog results"""
     image: np.ndarray
     """input image"""
@@ -25,6 +28,9 @@ class HogExtractorResult(NamedTuple):
     """HOG descriptor for the image"""
     hog_image: np.ndarray
     """A visualisation of the HOG image"""
+
+    def flatten(self) -> Self:
+        return dataclasses.replace(self, descriptor=self.descriptor.flatten())
 
     def imshow(self) -> None:
         """see pair by pair"""
