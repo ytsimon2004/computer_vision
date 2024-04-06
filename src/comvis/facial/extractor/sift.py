@@ -55,8 +55,8 @@ class SIFTFeatureExtractor(IdentityFeatureExtractor):
                 image = normalize_to_sift(image)
 
             _, des = self.sift.detectAndCompute(image, None)
+
             if des is not None:
-                print(f'{des[:self.n_features, :].shape=}')
                 features.append(des[:self.n_features, :])
 
         return kmean_cluster_descriptor(np.vstack(features), n)

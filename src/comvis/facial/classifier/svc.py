@@ -1,4 +1,3 @@
-import numpy as np
 from sklearn.svm import SVC
 
 from comvis.facial.classifier.base import BaseClassificationModel
@@ -19,16 +18,10 @@ class SVCClassificationModel(BaseClassificationModel):
 
     def fit(self, X, y):
         features = self.extractor.transform(X)
-        ignore, features = concat_descriptor_result(features)
-
-        #
-        mask = np.full_like(y, 1, dtype=bool)
-        mask[ignore] = False
-
-        self.classifier.fit(features, y[mask])
+        features = concat_descriptor_result(features)
+        self.classifier.fit(features, y)
 
     def predict(self, X):
         features = self.extractor.transform(X)
-        ignore, features = concat_descriptor_result(features)
-        print(f'{features.shape=}')
+        features = concat_descriptor_result(features)
         return self.classifier.predict(features)
