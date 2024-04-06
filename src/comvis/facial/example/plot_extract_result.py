@@ -44,6 +44,7 @@ def run_sift_extractor():
     sift_extractor = SIFTFeatureExtractor()
 
     ret = sift_extractor(opt.X_train)
+
     plot_sift_extracted_result(ret)
 
 

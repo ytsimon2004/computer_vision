@@ -1,5 +1,5 @@
 import dataclasses
-from typing import final, Literal
+from typing import final
 
 import cv2
 import numpy as np
@@ -8,7 +8,6 @@ from skimage.color import rgb2gray
 from typing_extensions import Self
 
 from comvis.facial.extractor.base import IdentityFeatureExtractor, ExtractedResultLike
-from comvis.facial.extractor.plot import plot_as_tsne, plot_as_pca
 from comvis.facial.util import plot_image_sequence
 
 __all__ = ['SIFTFeatureExtractor',
@@ -55,23 +54,10 @@ class SIFTFeatureExtractor(IdentityFeatureExtractor):
             keypoints, descriptors = self.sift.detectAndCompute(image, None)
             features.append((descriptors, keypoints))
 
-        return [SIFTExtractorResult(img, features[i][0], features[i][1]) for i, img in enumerate(X)]
-
-    # FIXME
-    def eval_sift_result(self,
-                         X: np.ndarray,
-                         labels: np.ndarray,
-                         plot_type: Literal['pca', 'tsne'] = 'tsne'):
-
-        assert len(X) == len(labels), 'number not the same between image and label'
-
-        features = self.transform(X)
-
-        match plot_type:
-            case 'tsne':
-                plot_as_tsne(features, labels)
-            case 'pca':
-                plot_as_pca(features, labels)
+        return [
+            SIFTExtractorResult(img, features[i][0], features[i][1])
+            for i, img in enumerate(X)
+        ]
 
 
 # ============ #

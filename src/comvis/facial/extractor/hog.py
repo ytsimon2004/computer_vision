@@ -130,4 +130,4 @@ def plot_hog_extracted_result(results: list[HogExtractorResult]):
         hogs.append(hog_image_rescaled)
 
     imgs = np.array(hogs)
-    plot_image_sequence(imgs, imgs_per_row=7)
+    plot_image_sequence(imgs, imgs_per_row=7, cmap='gray')

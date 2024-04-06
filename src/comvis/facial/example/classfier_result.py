@@ -1,15 +1,12 @@
 import numpy as np
-import polars as pl
 from sklearn.metrics import accuracy_score
 
 from comvis.facial.classifier.base import BaseClassificationModel
 from comvis.facial.classifier.svd import SVCClassificationModel
 from comvis.facial.data import FacialDataSet
-from comvis.facial.extractor.hog import HOGFeatureExtractor
-from comvis.facial.extractor.sift import SIFTFeatureExtractor
+from comvis.facial.extractor.sift import SIFTFeatureExtractor, plot_sift_extracted_result
 from comvis.facial.haar_preprocessor import HAARPreprocessor
 from comvis.facial.main_feature_repr import FeatureReprOptions
-from comvis.utils.verbose import printdf
 
 
 # ===============================  #
@@ -23,9 +20,12 @@ def predict_test_dataset(classifier: BaseClassificationModel) -> np.ndarray:
     :return:
         1D Array with test data classes label (Ts, )
     """
-    dat = FacialDataSet.load(to_pandas=False)
+    dat = FacialDataSet.load()
     preprocessor = HAARPreprocessor()
     opt = FeatureReprOptions(dat, preprocessor)
+
+    ext = classifier.extractor.transform(opt.X_train)
+    plot_sift_extracted_result(ext)
 
     classifier.fit(opt.X_train, opt.y_train)
     y_pred = classifier(opt.X_test)
@@ -47,22 +47,22 @@ def eval_accuracy_score_test(classifier: BaseClassificationModel) -> float:
 
 def compare_extractors():
     """example for see the predicted y from X_test"""
-    extractor = HOGFeatureExtractor()
-    model_hog = SVCClassificationModel(extractor)
-    ty_hog = predict_test_dataset(model_hog)
+    # extractor = HOGFeatureExtractor()
+    # model_hog = SVCClassificationModel(extractor)
+    # ty_hog = predict_test_dataset(model_hog)
 
-    extractor = SIFTFeatureExtractor(n_features=5)
+    extractor = SIFTFeatureExtractor(n_features=10)
     model_sift = SVCClassificationModel(extractor)
     ty_sift = predict_test_dataset(model_sift)
 
-    ret = pl.DataFrame().with_columns(
-        [
-            pl.Series(ty_hog).alias('predict_hog'),
-            pl.Series(ty_sift).alias('predict_sift')
-        ]
-    )
-
-    printdf(ret)
+    # ret = pl.DataFrame().with_columns(
+    #     [
+    #         pl.Series(ty_hog).alias('predict_hog'),
+    #         pl.Series(ty_sift).alias('predict_sift')
+    #     ]
+    # )
+    #
+    # printdf(ret)
 
 
 # =============================================================== #

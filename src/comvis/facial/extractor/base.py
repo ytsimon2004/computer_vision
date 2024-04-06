@@ -1,5 +1,4 @@
 import abc
-import dataclasses
 
 import numpy as np
 from typing_extensions import Self
@@ -9,7 +8,6 @@ __all__ = ['ExtractedResultLike',
            'concat_descriptor_result']
 
 
-@dataclasses.dataclass
 class ExtractedResultLike(metaclass=abc.ABCMeta):
     """ABC extractor transformed result"""
     descriptor: np.ndarray
