@@ -10,7 +10,8 @@ from typing_extensions import Self
 from comvis.facial.extractor.base import IdentityFeatureExtractor, ExtractedResultLike
 from comvis.facial.util import plot_image_sequence
 
-__all__ = ['SIFTFeatureExtractor',
+__all__ = ['SIFTExtractorResult',
+           'SIFTFeatureExtractor',
            'plot_sift_extracted_result']
 
 
@@ -18,8 +19,8 @@ __all__ = ['SIFTFeatureExtractor',
 class SIFTExtractorResult(ExtractedResultLike):
     image: np.ndarray
     """input image"""
-    descriptor: np.ndarray
-    """SIFT descriptor for the image"""
+    descriptor: np.ndarray | None
+    """SIFT descriptor for the image, 2D array. None if not found"""
     keypoints: np.ndarray
     """extracted keypoints"""
 
@@ -36,6 +37,7 @@ class SIFTExtractorResult(ExtractedResultLike):
 
 @final
 class SIFTFeatureExtractor(IdentityFeatureExtractor):
+    """SIFT fracture extraction"""
 
     def __init__(self, n_features: int = 30):
         self.n_features = n_features

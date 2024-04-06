@@ -57,7 +57,7 @@ class HOGFeatureExtractor(IdentityFeatureExtractor):
                  orientations: int = 8,
                  pixels_per_cell: tuple[int, int] = (16, 16),
                  cells_per_block: tuple[int, int] = (1, 1),
-                 block_norm: HOG_BLOCK_NORM_METHOD = 'L2',
+                 block_norm: HOG_BLOCK_NORM_METHOD = 'L2-Hys',
                  **kwargs):
         self.orientations = orientations
         self.pixels_per_cell = pixels_per_cell

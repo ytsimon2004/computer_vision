@@ -70,4 +70,4 @@ def run_pca_extractor(n_components: int = 14):
 
 
 if __name__ == '__main__':
-    run_sift_extractor()
+    run_hog_extractor()
