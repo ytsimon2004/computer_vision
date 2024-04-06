@@ -37,6 +37,7 @@ class FacialDataSet:
 
     @classmethod
     def load(cls, to_pandas: bool = False) -> Self:
+        """load data locally"""
         train = pl.read_csv((DEFAULT_CACHE_DIRECTORY / cls.TRAIN_SET_FILENAME)).drop('')
         test = pl.read_csv(DEFAULT_CACHE_DIRECTORY / cls.TEST_SET_FILENAME).drop('')
         train, test = cls._store_image(train, test, to_pandas)
@@ -45,6 +46,7 @@ class FacialDataSet:
 
     @classmethod
     def from_kaggle(cls) -> Self:
+        """load data from kaggle browser data structure TODO not test yet"""
         kaggle_root = Path('/kaggle/input/kul-h02a5a-computer-vision-ga1-2022')
         train = pl.read_csv(kaggle_root / cls.TRAIN_SET_FILENAME)
         test = pl.read_csv(kaggle_root / cls.TEST_SET_FILENAME)

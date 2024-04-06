@@ -1,4 +1,5 @@
-from typing import final, NamedTuple, Literal
+import dataclasses
+from typing import final, Literal
 
 import cv2
 import numpy as np
@@ -6,7 +7,7 @@ from matplotlib import pyplot as plt
 from skimage.color import rgb2gray
 from typing_extensions import Self
 
-from comvis.facial.extractor.base import IdentityFeatureExtractor
+from comvis.facial.extractor.base import IdentityFeatureExtractor, ExtractedResultLike
 from comvis.facial.extractor.plot import plot_as_tsne, plot_as_pca
 from comvis.facial.util import plot_image_sequence
 
@@ -14,16 +15,17 @@ __all__ = ['SIFTFeatureExtractor',
            'plot_sift_extracted_result']
 
 
-class SIFTExtractorResult(NamedTuple):
+@dataclasses.dataclass
+class SIFTExtractorResult(ExtractedResultLike):
     image: np.ndarray
     """input image"""
     descriptor: np.ndarray
     """SIFT descriptor for the image"""
     keypoints: np.ndarray
-    """extracted keypoint"""
+    """extracted keypoints"""
 
     def flatten(self) -> Self:
-        return self._replace(descriptor=self.descriptor.flatten())
+        return dataclasses.replace(self, descriptor=self.descriptor.flatten())
 
     def imshow(self):
         """plot individually"""

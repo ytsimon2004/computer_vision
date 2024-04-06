@@ -11,10 +11,12 @@ __all__ = ['ExtractedResultLike',
 
 @dataclasses.dataclass
 class ExtractedResultLike(metaclass=abc.ABCMeta):
+    """ABC extractor transformed result"""
     descriptor: np.ndarray
 
     @abc.abstractmethod
     def flatten(self) -> Self:
+        """flatten the descriptor for classifier usage"""
         pass
 
 

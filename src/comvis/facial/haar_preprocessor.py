@@ -14,15 +14,17 @@ __all__ = ['HAARPreprocessor']
 
 
 class HAARPreprocessor:
-    """Preprocessing pipeline built around HAAR feature based cascade classifiers. """
+    """Preprocessing pipeline built around HAAR feature based cascade classifiers."""
     CASCADES_NAME: ClassVar[str] = 'haarcascade_frontalface_default.xml'
 
     def __init__(self, directory: PathLike | None = None,
                  face_size: tuple[float, float] = (100, 100)):
+
         self.face_size = face_size
 
         self.directory = DEFAULT_CACHE_DIRECTORY if directory is None else Path(directory)
         self.file = self.directory / self.CASCADES_NAME
+
         if not self.file.exists():
             self._download_model()
 
