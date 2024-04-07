@@ -5,7 +5,7 @@ from comvis.facial.extractor.hog import HOGFeatureExtractor, plot_hog_extracted_
 from comvis.facial.extractor.pca import PCAFeatureExtractor
 from comvis.facial.extractor.sift import SIFTFeatureExtractor, plot_sift_extracted_result
 from comvis.facial.haar_preprocessor import HAARPreprocessor
-from comvis.facial.main_feature_repr import FeatureReprOptions
+from comvis.facial.preprocess import PreprocTrainTest
 from comvis.facial.util import plot_image_sequence
 
 __all__ = ['run_hog_extractor']
@@ -20,26 +20,26 @@ def run_hog_extractor(plot_individual: bool = False,
     """
     dat = FacialDataSet.load()
     preprocessor = HAARPreprocessor()
-    opt = FeatureReprOptions(dat, preprocessor)
+    opt = PreprocTrainTest(dat, preprocessor)
 
     hog_extractor = HOGFeatureExtractor()
 
     if plot_extracted_cls:
-        hog_extractor.eval_hog_result(opt.X_train, opt.y_train, plot_type='tsne')
+        hog_extractor.plot_clustering(opt.X_train, opt.y_train, plot_type='tsne')
 
-    if plot_individual:
-        ret = hog_extractor(opt.X_train)
-        for r in ret:
-            r.imshow()
     else:
         ret = hog_extractor(opt.X_train)
-        plot_hog_extracted_result(ret)
+        if plot_individual:
+            for r in ret:
+                r.imshow()
+        else:
+            plot_hog_extracted_result(ret)
 
 
 def run_sift_extractor():
     dat = FacialDataSet.load()
     preprocessor = HAARPreprocessor()
-    opt = FeatureReprOptions(dat, preprocessor)
+    opt = PreprocTrainTest(dat, preprocessor)
 
     sift_extractor = SIFTFeatureExtractor()
 
@@ -48,11 +48,10 @@ def run_sift_extractor():
     plot_sift_extracted_result(ret)
 
 
-
 def run_pca_extractor(n_components: int = 14):
     dat = FacialDataSet.load()
     preprocessor = HAARPreprocessor()
-    opt = FeatureReprOptions(dat, preprocessor)
+    opt = PreprocTrainTest(dat, preprocessor)
 
     pca_extractor = PCAFeatureExtractor(n_components)
 

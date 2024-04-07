@@ -8,7 +8,7 @@ from comvis.facial.data import FacialDataSet
 from comvis.facial.extractor.hog import HOGFeatureExtractor
 from comvis.facial.extractor.sift import SIFTFeatureExtractor
 from comvis.facial.haar_preprocessor import HAARPreprocessor
-from comvis.facial.main_feature_repr import FeatureReprOptions
+from comvis.facial.preprocess import PreprocTrainTest
 from comvis.utils.verbose import printdf
 
 
@@ -25,7 +25,7 @@ def predict_test_dataset(classifier: BaseClassificationModel) -> np.ndarray:
     """
     dat = FacialDataSet.load()
     preprocessor = HAARPreprocessor()
-    opt = FeatureReprOptions(dat, preprocessor)
+    opt = PreprocTrainTest(dat, preprocessor)
 
     classifier.fit(opt.X_train, opt.y_train)
     y_pred = classifier(opt.X_test)

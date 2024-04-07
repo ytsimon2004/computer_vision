@@ -9,6 +9,7 @@ from sklearn.cluster import KMeans
 from typing_extensions import Self
 
 from comvis.facial.extractor.base import IdentityFeatureExtractor, ExtractedResultLike
+from comvis.facial.extractor.plot import plot_as_tsne
 from comvis.facial.util import plot_image_sequence
 
 __all__ = ['SIFTExtractorResult',
@@ -16,8 +17,11 @@ __all__ = ['SIFTExtractorResult',
            'plot_sift_extracted_result']
 
 
+@final
 @dataclasses.dataclass
 class SIFTExtractorResult(ExtractedResultLike):
+    __name__ = 'SIFT'
+
     image: np.ndarray
     """input image"""
     descriptor: np.ndarray | None
@@ -88,6 +92,12 @@ class SIFTFeatureExtractor(IdentityFeatureExtractor):
             SIFTExtractorResult(img, features[i][0], features[i][1])
             for i, img in enumerate(X)
         ]
+
+    def plot_clustering(self, X, labels: np.ndarray):
+
+        features = self.transform(X)
+
+        plot_as_tsne(features, labels)
 
 
 # ============ #

@@ -19,9 +19,13 @@ __all__ = ['HogExtractorResult',
 HOG_BLOCK_NORM_METHOD = Literal['L1’', 'L1-sqrt', 'L2', 'L2-Hys']
 
 
+@final
 @dataclasses.dataclass
 class HogExtractorResult(ExtractedResultLike):
     """Container for storing the hog results"""
+
+    __name__ = 'HOG'
+
     image: np.ndarray
     """input image"""
     descriptor: np.ndarray
@@ -106,7 +110,7 @@ class HOGFeatureExtractor(IdentityFeatureExtractor):
             *ret
         )
 
-    def eval_hog_result(self,
+    def plot_clustering(self,
                         X: np.ndarray,
                         labels: np.ndarray,
                         plot_type: Literal['pca', 'tsne'] = 'tsne'):

@@ -38,6 +38,10 @@ class HAARPreprocessor:
         else:
             raise TypeError('')
 
+        # replace NaN with 0 and Inf with large finite numbers (just for suppress warning)
+        if np.any(np.isnan(dat)):
+            dat = np.nan_to_num(dat)
+
         return np.stack(dat).astype(int)
 
     def _download_model(self):

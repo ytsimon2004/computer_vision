@@ -5,10 +5,10 @@ import numpy as np
 from comvis.facial.data import FacialDataSet
 from comvis.facial.haar_preprocessor import HAARPreprocessor
 
-__all__ = ['FeatureReprOptions']
+__all__ = ['PreprocTrainTest']
 
 
-class FeatureReprOptions:
+class PreprocTrainTest:
     """Preprocess (HAARPreprocessor), and get train/test facial dataset
 
     `Dimension parameters`:
@@ -44,9 +44,35 @@ class FeatureReprOptions:
         return self.preproc(self.dat.test)
 
     @property
-    def y_test(self):
+    def y_test(self) -> np.ndarray:
         """TODO no test data label (Ts,)"""
-        return
+        raise NotImplementedError('')
+
+    # ============== #
+    # As Actual Name #
+    # ============== #
+
+    @property
+    def X_train_mila(self) -> np.ndarray:
+        return self.X_train[self.y_train == 2]
+
+    @property
+    def X_train_jesse(self) -> np.ndarray:
+        return self.X_train[self.y_train == 1]
+
+    @property
+    def X_train_michael(self) -> np.ndarray:
+        name = self.dat.train['name']
+        return self.X_train[name == 'Michael_Cera']
+
+    @property
+    def X_train_sarah(self) -> np.ndarray:
+        name = self.dat.train['name']
+        return self.X_train[name == 'Sarah_Hyland']
+
+    # ===== #
+    # image #
+    # ===== #
 
     @property
     def image_height(self) -> int:
