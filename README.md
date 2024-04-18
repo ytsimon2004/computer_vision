@@ -1,4 +1,4 @@
-Computer vision
+Computer vision CV2 GUI
 ======== 
 by Yu-Ting Wei (ytsimon2004@gmail.com)
 
